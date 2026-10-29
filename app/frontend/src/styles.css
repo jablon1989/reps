@@ -785,3 +785,70 @@ p {
     animation: none;
   }
 }
+
+/* ---------- import ---------- */
+.link-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 56px;
+  font-weight: 600;
+}
+.file-btn {
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+.file-btn input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.file-btn.disabled {
+  opacity: 0.6;
+}
+.big-number {
+  font-family: var(--display);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0;
+  line-height: 1;
+}
+.import-row {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.7rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+}
+.import-row:last-child {
+  border-bottom: 0;
+}
+.import-row .pill {
+  margin-left: 0.4rem;
+}
+.import-row select {
+  font: inherit;
+  min-height: 44px;
+  padding: 0 0.6rem;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+}
+.progress {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.progress div {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+.skipped {
+  margin: 0;
+  padding-left: 1.1rem;
+}

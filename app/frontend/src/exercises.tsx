@@ -11,6 +11,8 @@ interface ExercisesState {
   create: (input: ExerciseInput) => Promise<Exercise>;
   update: (id: string, input: ExerciseInput) => Promise<Exercise>;
   remove: (id: string) => Promise<void>;
+  /** Load again (after an import added exercises). */
+  reload: () => Promise<void>;
 }
 
 const Ctx = createContext<ExercisesState | null>(null);
@@ -29,16 +31,21 @@ export function ExercisesProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
+  const load = useCallback(
+    () =>
+      api
+        .exercises()
+        .then((r) => {
+          setCategories(r.categories);
+          setExercises(r.exercises);
+        })
+        .catch((e: Error) => setError(e.message))
+        .finally(() => setLoading(false)),
+    [api],
+  );
   useEffect(() => {
-    api
-      .exercises()
-      .then((r) => {
-        setCategories(r.categories);
-        setExercises(r.exercises);
-      })
-      .catch((e: Error) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, [api]);
+    load();
+  }, [load]);
 
   const replace = useCallback((ex: Exercise) => {
     setExercises((list) =>
@@ -64,8 +71,9 @@ export function ExercisesProvider({ children }: { children: ReactNode }) {
         await api.deleteExercise(id);
         setExercises((list) => list.map((e) => (e.id === id ? { ...e, hidden: true } : e)));
       },
+      reload: load,
     }),
-    [api, categories, exercises, loading, error, replace],
+    [api, categories, exercises, loading, error, replace, load],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

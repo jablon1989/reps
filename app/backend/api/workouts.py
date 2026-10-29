@@ -247,11 +247,11 @@ def set_view(item: dict) -> dict:
     return out
 
 
-def put_set(table, pk: str, set_id: str, body: dict, now: str) -> dict:
+def build_set(pk: str, set_id: str, body: dict, exercise: dict, now: str) -> dict:
+    """A checked set item, ready to save."""
     if not SET_ID_RE.match(set_id or ""):
         raise Invalid(400, "Bad set id")
     day = _date(body.get("date"))
-    exercise = get_exercise(table, pk, str(body.get("exercise_id") or ""))
     item: dict = {
         "pk": pk,
         "sk": f"SET#{day}#{set_id}",
@@ -278,6 +278,12 @@ def put_set(table, pk: str, set_id: str, body: dict, now: str) -> dict:
         item["comment"] = comment[:500]
     item["gsi1pk"] = f"{pk}#EX#{exercise['id']}"
     item["gsi1sk"] = f"{day}#{item['at']}#{set_id}"
+    return item
+
+
+def put_set(table, pk: str, set_id: str, body: dict, now: str) -> dict:
+    exercise = get_exercise(table, pk, str(body.get("exercise_id") or ""))
+    item = build_set(pk, set_id, body, exercise, now)
     table.put_item(Item=item)
     return set_view(item)
 

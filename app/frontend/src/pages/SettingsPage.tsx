@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { Link } from "react-router";
 import { useApi } from "../api";
 import { LANGUAGES, LANGUAGE_NAMES, useT } from "../i18n";
 import { useMe } from "../me";
@@ -28,6 +29,12 @@ export function SettingsPage() {
           </button>
         ))}
       </div>
+
+      <h2>{t("importTitle")}</h2>
+      <Link className="card link-card" to="/import">
+        <span>📥 {t("importOpen")}</span>
+        <span aria-hidden>›</span>
+      </Link>
 
       <h2>{t("account")}</h2>
       <div className="card">

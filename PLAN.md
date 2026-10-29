@@ -66,7 +66,7 @@ DynamoDB, Cognito, Terraform, GitHub Actions. The frontend is React + Vite.
    - custom exercises and favourites
    - the day log
    - the rest timer
-3. **Import**
+3. **Import** ✅
    - `.fitnotes` and CSV importer
    - our history loaded in
 4. **Records and stats**

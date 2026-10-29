@@ -18,6 +18,10 @@ locals {
     "GET /api/sets",
     "PUT /api/sets/{setId}",
     "DELETE /api/sets/{setId}",
+    "POST /api/import/parse",
+    "POST /api/import/exercises",
+    "POST /api/import/sets",
+    "DELETE /api/import",
   ]
 }
 
@@ -105,7 +109,7 @@ resource "aws_lambda_function" "api" {
   filename         = data.archive_file.api.output_path
   source_code_hash = data.archive_file.api.output_base64sha256
   memory_size      = 256
-  timeout          = 10
+  timeout          = 29 # imports write up to 1000 sets per call; API Gateway waits 30 s
 
   environment {
     variables = {

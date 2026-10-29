@@ -75,3 +75,44 @@ export interface Session {
   date: string;
   sets: WorkSet[];
 }
+
+export interface ImportExercise {
+  name: string;
+  source_category: string;
+  sets: number;
+  /** built-in exercise it matched, or null = becomes your own */
+  builtin: string | null;
+  id: string;
+  category: string;
+  /** we guessed the body part: worth a look */
+  check_category: boolean;
+  type: ExerciseType;
+  favourite: boolean;
+}
+
+export interface ImportSet {
+  exercise: string;
+  date: string;
+  n: number;
+  i: number;
+  weight?: number;
+  reps?: number;
+  distance?: number;
+  seconds?: number;
+  comment?: string;
+}
+
+export interface ImportPreview {
+  source: "fitnotes" | "csv";
+  sets: ImportSet[];
+  exercises: ImportExercise[];
+  days: number;
+  first: string;
+  last: string;
+}
+
+export interface ImportResult {
+  saved: number;
+  skipped: { date: string; exercise_id: string; why: string }[];
+  skipped_count: number;
+}

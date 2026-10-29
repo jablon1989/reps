@@ -6,6 +6,7 @@ import { TimerBar } from "./components/TimerBar";
 import { ExercisesProvider } from "./exercises";
 import { ComingSoon } from "./pages/ComingSoon";
 import { ExercisesPage } from "./pages/ExercisesPage";
+import { ImportPage } from "./pages/ImportPage";
 import { LogPage } from "./pages/LogPage";
 import { LoginPage } from "./pages/LoginPage";
 import { PickPage } from "./pages/PickPage";
@@ -81,6 +82,7 @@ function Shell() {
           <Route path="/exercises" element={<ExercisesPage />} />
           <Route path="/stats" element={<ComingSoon icon="📈" title={t("tabStats")} text={t("soonStats")} />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/import" element={<ImportPage />} />
           <Route path="*" element={<div className="center-screen muted">{t("pageNotFound")}</div>} />
         </Routes>
       </main>

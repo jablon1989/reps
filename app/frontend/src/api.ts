@@ -1,6 +1,19 @@
 import { useMemo } from "react";
 import { useSession } from "./session";
-import type { Category, Exercise, ExerciseInput, Me, Person, Session, Settings, WorkSet } from "./types";
+import type {
+  Category,
+  Exercise,
+  ExerciseInput,
+  ImportExercise,
+  ImportPreview,
+  ImportResult,
+  ImportSet,
+  Me,
+  Person,
+  Session,
+  Settings,
+  WorkSet,
+} from "./types";
 
 export class ApiError extends Error {
   constructor(
@@ -52,6 +65,12 @@ function createApi(token: string | undefined) {
     sets: (date: string) => call<{ sets: WorkSet[] }>("GET", `/sets?date=${date}`).then((r) => r.sets),
     saveSet: (set: WorkSet) => call<WorkSet>("PUT", `/sets/${set.id}`, set),
     deleteSet: (set: WorkSet) => call<void>("DELETE", `/sets/${set.id}?date=${set.date}`),
+
+    importParse: (filename: string, data: string) => call<ImportPreview>("POST", "/import/parse", { filename, data }),
+    importExercises: (exercises: ImportExercise[]) =>
+      call<{ ids: Record<string, string> }>("POST", "/import/exercises", { exercises }).then((r) => r.ids),
+    importSets: (sets: (ImportSet & { exercise_id: string })[]) => call<ImportResult>("POST", "/import/sets", { sets }),
+    importUndo: () => call<{ deleted: number }>("DELETE", "/import"),
   };
 }
 

@@ -24,6 +24,7 @@ from typing import Any
 
 import boto3
 
+import importer
 import people
 import workouts
 
@@ -232,6 +233,112 @@ def delete_set(event: dict, path: dict) -> dict:
     return response(204)
 
 
+# ---------------------------------------------------------------------------
+# Import from FitNotes: parse (preview) -> exercises -> sets (in chunks)
+# ---------------------------------------------------------------------------
+IMPORT_CHUNK = 1000
+
+
+def import_parse(event: dict, _: dict) -> dict:
+    current_user(event)
+    import base64
+    import binascii
+
+    body = parse_body(event)
+    try:
+        data = base64.b64decode(str(body.get("data") or ""), validate=True)
+    except binascii.Error as exc:
+        raise ApiError(400, "The file didn't arrive in one piece") from exc
+    try:
+        return response(200, importer.parse(str(body.get("filename") or ""), data))
+    except importer.ImportProblem as exc:
+        raise ApiError(400, str(exc)) from exc
+
+
+def import_exercises(event: dict, _: dict) -> dict:
+    """Create the not-built-in exercises (same name -> same id) and copy favourites."""
+    user = current_user(event)
+    body = parse_body(event)
+    items = body.get("exercises")
+    if not isinstance(items, list) or len(items) > 2000:
+        raise ApiError(400, "exercises must be a list")
+    now = now_iso()
+    existing = {k for k in workouts._custom_items(table, user.pk)}
+    ids = {}
+    for ex in items:
+        name = str(ex.get("name") or "").strip()[:60]
+        if not name:
+            raise ApiError(400, "Every exercise needs a name")
+        builtin = importer.match_builtin(name)
+        exercise_id = builtin or importer.custom_id(name)
+        if not builtin:
+            if ex.get("category") not in workouts.category_ids():
+                raise ApiError(400, f"Pick a body part for {name}")
+            kind = ex.get("type") if ex.get("type") in workouts.TYPES else "weight_reps"
+            if exercise_id in existing:
+                table.update_item(
+                    Key={"pk": user.pk, "sk": f"EX#{exercise_id}"},
+                    UpdateExpression="SET category = :c, #t = :t, updated_at = :now REMOVE deleted",
+                    ExpressionAttributeNames={"#t": "type"},
+                    ExpressionAttributeValues={":c": ex["category"], ":t": kind, ":now": now},
+                )
+            else:
+                table.put_item(
+                    Item={
+                        "pk": user.pk,
+                        "sk": f"EX#{exercise_id}",
+                        "en": name,
+                        "pl": name,
+                        "category": ex["category"],
+                        "type": kind,
+                        "created_at": now,
+                        "imported": True,
+                    }
+                )
+        if ex.get("favourite"):
+            workouts.update_prefs(table, user.pk, exercise_id, {"favourite": True})
+        ids[name] = exercise_id
+    return response(200, {"ids": ids})
+
+
+def import_sets(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    body = parse_body(event)
+    items = body.get("sets")
+    if not isinstance(items, list) or len(items) > IMPORT_CHUNK:
+        raise ApiError(400, f"sets must be a list of up to {IMPORT_CHUNK}")
+    now = now_iso()
+    exercises: dict[str, dict] = {}
+    saved, skipped = 0, []
+    with table.batch_writer(overwrite_by_pkeys=["pk", "sk"]) as batch:
+        for s in items:
+            try:
+                ex_id = str(s.get("exercise_id") or "")
+                if ex_id not in exercises:
+                    exercises[ex_id] = workouts.get_exercise(table, user.pk, ex_id)
+                day = str(s.get("date") or "")
+                n, i = int(s.get("n") or 0), int(s.get("i") or 0)
+                fields = {k: s[k] for k in ("weight", "reps", "distance", "seconds", "comment") if k in s}
+                set_body = fields | {"date": day, "at": importer.at(day, i)}
+                item = workouts.build_set(user.pk, importer.set_id(ex_id, day, n), set_body, exercises[ex_id], now)
+            except (workouts.Invalid, ValueError, TypeError) as exc:
+                skipped.append({"date": s.get("date"), "exercise_id": s.get("exercise_id"), "why": str(exc)})
+                continue
+            batch.put_item(Item={**item, "imported": True})
+            saved += 1
+    return response(200, {"saved": saved, "skipped": skipped[:50], "skipped_count": len(skipped)})
+
+
+def import_undo(event: dict, _: dict) -> dict:
+    """Remove every imported set (sets you logged yourself stay)."""
+    user = current_user(event)
+    sets = [s for s in workouts._query(table, user.pk, "SET#") if str(s.get("set_id", "")).startswith("imp-")]
+    with table.batch_writer() as batch:
+        for s in sets:
+            batch.delete_item(Key={"pk": user.pk, "sk": s["sk"]})
+    return response(200, {"deleted": len(sets)})
+
+
 ROUTES: dict[str, Callable[[dict, dict], dict]] = {
     "GET /api/me": get_me,
     "PUT /api/me/settings": put_settings,
@@ -245,6 +352,10 @@ ROUTES: dict[str, Callable[[dict, dict], dict]] = {
     "GET /api/sets": get_sets,
     "PUT /api/sets/{setId}": put_set,
     "DELETE /api/sets/{setId}": delete_set,
+    "POST /api/import/parse": import_parse,
+    "POST /api/import/exercises": import_exercises,
+    "POST /api/import/sets": import_sets,
+    "DELETE /api/import": import_undo,
 }
 
 

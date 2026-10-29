@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 const KEY = "reps-rest-timer";
+const DONE_SHOWN_MS = 60_000;
 
 interface Timer {
   /** epoch ms when the rest ends; undefined = not running */
@@ -83,6 +84,14 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       beep();
     }
   }, [done, rang]);
+
+  // "Rest's over" stays a minute, then the bar goes away by itself.
+  useEffect(() => {
+    if (timer.endsAt && now - timer.endsAt > DONE_SHOWN_MS) {
+      write({ total: 0 });
+      setTimer({ total: 0 });
+    }
+  }, [now, timer.endsAt]);
 
   const update = useCallback((t: Timer) => {
     write(t);
