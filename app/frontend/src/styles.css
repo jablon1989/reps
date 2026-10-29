@@ -331,30 +331,55 @@ p {
   color: var(--muted);
 }
 
-/* ---------- body part colours ---------- */
+/* ---------- body part colours ----------
+   The dataviz reference categorical palette, in its validated order (adjacent
+   pairs stay apart for colour-blind readers). Dark steps by default, light
+   steps when the phone is in light mode. Text never takes these colours. */
+:root {
+  --c-shoulders: #3987e5;
+  --c-triceps: #d95926;
+  --c-biceps: #199e70;
+  --c-chest: #c98500;
+  --c-back: #d55181;
+  --c-legs: #008300;
+  --c-abs: #9085e9;
+  --c-cardio: #e66767;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --c-shoulders: #2a78d6;
+    --c-triceps: #eb6834;
+    --c-biceps: #1baf7a;
+    --c-chest: #eda100;
+    --c-back: #e87ba4;
+    --c-legs: #008300;
+    --c-abs: #6250d6;
+    --c-cardio: #e34948;
+  }
+}
 .cat-shoulders {
-  --cat: #ff9f43;
+  --cat: var(--c-shoulders);
 }
 .cat-triceps {
-  --cat: #4dd0e1;
+  --cat: var(--c-triceps);
 }
 .cat-biceps {
-  --cat: #ff6b81;
+  --cat: var(--c-biceps);
 }
 .cat-chest {
-  --cat: #c08bff;
+  --cat: var(--c-chest);
 }
 .cat-back {
-  --cat: #5c9dff;
+  --cat: var(--c-back);
 }
 .cat-legs {
-  --cat: #7ee08a;
+  --cat: var(--c-legs);
 }
 .cat-abs {
-  --cat: #ffd54f;
+  --cat: var(--c-abs);
 }
 .cat-cardio {
-  --cat: #ff7a59;
+  --cat: var(--c-cardio);
 }
 .cat-dot {
   width: 10px;
@@ -851,4 +876,287 @@ p {
 .skipped {
   margin: 0;
   padding-left: 1.1rem;
+}
+
+/* ---------- stats ---------- */
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+.section-head h2 {
+  margin-right: auto;
+}
+.small-seg {
+  padding: 3px;
+}
+.small-seg button {
+  min-height: 34px;
+  padding: 0 0.8rem;
+  font-size: 0.85rem;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+.tile {
+  display: grid;
+  gap: 0.2rem;
+  align-content: start;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.9rem;
+}
+.tile-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.tile-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.tile-note {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.prs li + li {
+  border-top: 1px solid var(--line);
+}
+.pr-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.5rem;
+}
+.pr-main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+.pr-set {
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.pr-badge {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.ml-auto {
+  margin-left: auto;
+}
+.bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+.bars li {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  grid-template-areas: "label value" "track track";
+  gap: 0.3rem 0.6rem;
+  align-items: center;
+}
+.bar-label {
+  grid-area: label;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.bar-value {
+  grid-area: value;
+  justify-self: end;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.bar-track {
+  grid-area: track;
+  height: 12px;
+}
+.bar-fill {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--cat);
+}
+.chart {
+  position: relative;
+  width: 100%;
+  margin: 0.4rem 0;
+  touch-action: pan-y;
+}
+.chart-empty {
+  min-height: 80px;
+  display: grid;
+  place-items: center;
+}
+.chart .grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.chart .tick,
+.chart .cap {
+  fill: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.chart .cap {
+  fill: var(--text);
+  font-weight: 600;
+}
+.chart .end-label {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+}
+.chart .ring {
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+.chart .crosshair {
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+.tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: grid;
+  justify-items: center;
+  gap: 0.1rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.chip.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+.records {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.records th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 0 0.4rem 0.4rem;
+}
+.records td {
+  padding: 0.5rem 0.4rem;
+  border-top: 1px solid var(--line);
+}
+.records td a {
+  color: var(--muted);
+}
+.sessions {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+.sessions .history-date {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.calendar {
+  display: grid;
+  gap: 0.6rem;
+}
+.cal-head {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  text-align: center;
+  text-transform: capitalize;
+}
+.cal-head .icon-btn:disabled {
+  opacity: 0.3;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+.cal-wd {
+  padding-bottom: 0.2rem;
+}
+.cal-day {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cal-day.trained {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+.cal-day.today {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.cal-dots {
+  display: flex;
+  gap: 2px;
+}
+.cal-dots .cat-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--cat);
+}
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.legend .cat-dot {
+  background: var(--cat);
+}
+.link-btn {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
 }

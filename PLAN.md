@@ -69,7 +69,7 @@ DynamoDB, Cognito, Terraform, GitHub Actions. The frontend is React + Vite.
 3. **Import** ✅
    - `.fitnotes` and CSV importer
    - our history loaded in
-4. **Records and stats**
+4. **Records and stats** ✅
    - PRs and PR badges
    - graphs
    - volume per body part

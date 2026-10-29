@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useApi } from "../api";
 import { formatDay } from "../dates";
 import { useExercises } from "../exercises";
+import { useHistory } from "../history";
 import { exerciseName } from "../format";
 import { useLanguage, useT } from "../i18n";
 import type { ImportPreview, ImportResult } from "../types";
@@ -32,6 +33,7 @@ export function ImportPage() {
   const api = useApi();
   const navigate = useNavigate();
   const { categories, byId, reload } = useExercises();
+  const history = useHistory();
   const [step, setStep] = useState<Step>({ kind: "pick" });
   const [undoMessage, setUndoMessage] = useState<string>();
   const fmt = (n: number) => n.toLocaleString(lang === "pl" ? "pl-PL" : "en-GB");
@@ -68,7 +70,7 @@ export function ImportPage() {
         result.skipped.push(...r.skipped.slice(0, 20 - result.skipped.length));
         setStep({ kind: "importing", done: Math.min(total, start + CHUNK), total });
       }
-      await reload();
+      await Promise.all([reload(), history.reload()]);
       setStep({ kind: "done", result });
     } catch (err) {
       setStep({ kind: "preview", preview, categories: chosen, error: (err as Error).message });
@@ -79,6 +81,7 @@ export function ImportPage() {
     if (!window.confirm(t("importUndoConfirm"))) return;
     try {
       const { deleted } = await api.importUndo();
+      await history.reload();
       setUndoMessage(t("importUndone", { n: fmt(deleted) }));
     } catch (err) {
       setUndoMessage((err as Error).message);

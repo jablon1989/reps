@@ -153,3 +153,23 @@ def test_history_is_newest_first_and_skips_today(aws):
         ("2026-10-25", [53]),
         ("2026-10-22", [51, 52]),
     ]
+
+
+def test_all_sets_in_pages(aws, monkeypatch):
+    import workouts
+
+    monkeypatch.setattr(workouts, "ALL_PAGE", 3)
+    for i, day in enumerate(["2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"]):
+        log(aws, f"set-000{i}", day=day, weight=50 + i, reps=10)
+    log(aws, "set-0099", "running-treadmill", day="2026-10-24", distance=5, seconds=1500)
+
+    status, page = call(aws, "GET /api/sets/all")
+    assert status == 200
+    assert [r[1] for r in page["sets"]] == ["2026-10-20", "2026-10-21", "2026-10-22"]
+    assert page["sets"][0] == ["set-0000", "2026-10-20", "2026-10-20T18:00:00", "lat-pulldown", 50, 10, None, None]
+    status, page = call(aws, "GET /api/sets/all", query={"cursor": page["next"]})
+    assert [r[1] for r in page["sets"]] == ["2026-10-23", "2026-10-24"]
+    assert page["sets"][1][6:] == [5, 1500]
+    assert page["next"] is None
+    assert call(aws, "GET /api/sets/all", MEMBER)[1] == {"sets": [], "next": None}
+    assert call(aws, "GET /api/sets/all", query={"cursor": "bm9wZQ=="})[0] == 400

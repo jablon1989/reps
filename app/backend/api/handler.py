@@ -222,6 +222,11 @@ def get_sets(event: dict, _: dict) -> dict:
     return response(200, {"sets": workouts.day_sets(table, user.pk, query_params(event).get("date", ""))})
 
 
+def get_all_sets(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    return response(200, workouts.all_sets(table, user.pk, query_params(event).get("cursor")))
+
+
 def put_set(event: dict, path: dict) -> dict:
     user = current_user(event)
     return response(200, workouts.put_set(table, user.pk, path.get("setId", ""), parse_body(event), now_iso()))
@@ -350,6 +355,7 @@ ROUTES: dict[str, Callable[[dict, dict], dict]] = {
     "DELETE /api/exercises/{exerciseId}": delete_exercise,
     "GET /api/exercises/{exerciseId}/history": get_history,
     "GET /api/sets": get_sets,
+    "GET /api/sets/all": get_all_sets,
     "PUT /api/sets/{setId}": put_set,
     "DELETE /api/sets/{setId}": delete_set,
     "POST /api/import/parse": import_parse,

@@ -16,6 +16,7 @@ locals {
     "DELETE /api/exercises/{exerciseId}",
     "GET /api/exercises/{exerciseId}/history",
     "GET /api/sets",
+    "GET /api/sets/all",
     "PUT /api/sets/{setId}",
     "DELETE /api/sets/{setId}",
     "POST /api/import/parse",

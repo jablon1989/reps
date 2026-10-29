@@ -62,6 +62,12 @@ function createApi(token: string | undefined) {
         (r) => r.sessions,
       ),
 
+    /** All your sets, compact rows, page by page. */
+    allSets: (cursor?: string) =>
+      call<{
+        sets: [string, string, string, string, number | null, number | null, number | null, number | null][];
+        next: string | null;
+      }>("GET", `/sets/all${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`),
     sets: (date: string) => call<{ sets: WorkSet[] }>("GET", `/sets?date=${date}`).then((r) => r.sets),
     saveSet: (set: WorkSet) => call<WorkSet>("PUT", `/sets/${set.id}`, set),
     deleteSet: (set: WorkSet) => call<void>("DELETE", `/sets/${set.id}?date=${set.date}`),

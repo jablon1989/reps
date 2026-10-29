@@ -52,3 +52,23 @@ export function formatSet(set: WorkSet, ex: Exercise | undefined, language: Lang
   }
   return `${formatNumber(w, language)} kg ${reps}`;
 }
+
+/** 12,345 kg -> "12.3 t" (or "12,3 t" in Polish); smaller -> "850 kg". */
+export function formatTonnage(kg: number, language: Language): string {
+  if (kg >= 1000) {
+    const t = kg / 1000;
+    if (t >= 100) return `${formatCount(Math.round(t), language)} t`;
+    return `${formatNumber(Math.round(t * 10) / 10, language)} t`;
+  }
+  return `${formatNumber(Math.round(kg), language)} kg`;
+}
+
+export function formatCount(n: number, language: Language): string {
+  return n.toLocaleString(language === "pl" ? "pl-PL" : "en-GB");
+}
+
+/** pace in min/km -> "5:12" */
+export function formatPace(minPerKm: number): string {
+  const total = Math.round(minPerKm * 60);
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+}

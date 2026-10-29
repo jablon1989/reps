@@ -318,3 +318,42 @@ def history(table, pk: str, exercise_id: str, before: str | None, sessions: int)
 
 def _sessions(days: dict[str, list[dict]]) -> list[dict]:
     return [{"date": d, "sets": sorted(sets, key=lambda s: s["at"])} for d, sets in days.items()]
+
+
+# ---------------------------------------------------------------------------
+# Everything at once (stats are worked out on the phone)
+# ---------------------------------------------------------------------------
+ALL_FIELDS = ("set_id", "date", "at", "exercise_id", "weight", "reps", "distance", "seconds")
+ALL_PAGE = 5000
+
+
+def all_sets(table, pk: str, cursor: str | None) -> dict:
+    """Your sets in date order, as compact rows, up to ALL_PAGE per call.
+
+    Row: [id, date, at, exercise_id, weight, reps, distance, seconds] (null = not set).
+    """
+    import base64
+
+    kwargs: dict = {
+        "KeyConditionExpression": Key("pk").eq(pk) & Key("sk").begins_with("SET#"),
+        "ProjectionExpression": ", ".join(f"#{f}" for f in ALL_FIELDS),
+        "ExpressionAttributeNames": {f"#{f}": f for f in ALL_FIELDS},
+    }
+    if cursor:
+        try:
+            sk = base64.urlsafe_b64decode(cursor.encode()).decode()
+        except ValueError as exc:
+            raise Invalid(400, "Bad cursor") from exc
+        if not sk.startswith("SET#"):
+            raise Invalid(400, "Bad cursor")
+        kwargs["ExclusiveStartKey"] = {"pk": pk, "sk": sk}
+    rows: list[list] = []
+    while True:
+        page = table.query(Limit=ALL_PAGE - len(rows), **kwargs)
+        rows.extend([item.get(f) for f in ALL_FIELDS] for item in page.get("Items", []))
+        last = page.get("LastEvaluatedKey")
+        if not last:
+            return {"sets": rows, "next": None}
+        if len(rows) >= ALL_PAGE:
+            return {"sets": rows, "next": base64.urlsafe_b64encode(last["sk"].encode()).decode()}
+        kwargs["ExclusiveStartKey"] = last

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { addDays, todayIso } from "./dates";
-import { formatDuration, formatSet, parseDuration, parseNumber } from "./format";
+import { formatDuration, formatSet, formatTonnage, parseDuration, parseNumber } from "./format";
 import type { Exercise } from "./types";
 
 const ex = (type: Exercise["type"]) => ({ type }) as Exercise;
@@ -35,5 +35,13 @@ describe("format", () => {
     expect(addDays("2026-10-31", 1)).toBe("2026-11-01");
     expect(addDays("2026-03-01", -1)).toBe("2026-02-28");
     expect(todayIso(new Date(2026, 9, 29, 23, 30))).toBe("2026-10-29");
+  });
+});
+
+describe("tonnage", () => {
+  it("switches to tonnes and groups thousands", () => {
+    expect(formatTonnage(850, "en")).toBe("850 kg");
+    expect(formatTonnage(37_400, "pl")).toBe("37,4 t");
+    expect(formatTonnage(4_247_000, "en")).toBe("4,247 t");
   });
 });

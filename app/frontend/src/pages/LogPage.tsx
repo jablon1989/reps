@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useApi } from "../api";
 import { formatDay, todayIso } from "../dates";
 import { useExercises } from "../exercises";
+import { useHistory } from "../history";
 import { exerciseName, formatDuration, formatNumber, formatSet, parseDuration, parseNumber } from "../format";
 import { useLanguage, useT } from "../i18n";
+import { isLift, prSetIds } from "../stats";
 import { useTimer } from "../timer";
 import type { Exercise, Session, WorkSet } from "../types";
 import { DateBar, dayQuery, useDay } from "./WorkoutPage";
@@ -31,6 +33,7 @@ function Logger({ ex }: { ex: Exercise }) {
   const navigate = useNavigate();
   const timer = useTimer();
   const { update } = useExercises();
+  const history = useHistory();
   const [day, setDay] = useDay();
   const [daySets, setDaySets] = useState<WorkSet[]>([]);
   const [last, setLast] = useState<Session | null>();
@@ -45,6 +48,8 @@ function Logger({ ex }: { ex: Exercise }) {
   const name = exerciseName(ex, lang);
 
   const sets = useMemo(() => daySets.filter((s) => s.exercise_id === ex.id), [daySets, ex.id]);
+  const all = history.forExercise(ex.id);
+  const prs = useMemo(() => (isLift(ex) ? prSetIds(all) : new Set<string>()), [all, ex]);
 
   function fill(s: WorkSet | undefined) {
     setWeight(s?.weight !== undefined ? formatNumber(s.weight, lang) : ex.type === "weight_reps" ? "" : "0");
@@ -115,6 +120,7 @@ function Logger({ ex }: { ex: Exercise }) {
     setError(undefined);
     try {
       const saved = await api.saveSet(set);
+      history.upsert(saved);
       setDaySets((all) =>
         all.some((s) => s.id === saved.id) ? all.map((s) => (s.id === saved.id ? saved : s)) : [...all, saved],
       );
@@ -133,6 +139,7 @@ function Logger({ ex }: { ex: Exercise }) {
     setBusy(true);
     try {
       await api.deleteSet(set);
+      history.remove(set.id);
       setDaySets((all) => all.filter((s) => s.id !== set.id));
       setSelected(undefined);
     } catch (e) {
@@ -222,6 +229,7 @@ function Logger({ ex }: { ex: Exercise }) {
                 <button className={selected === s.id ? "selected" : ""} onClick={() => select(s)}>
                   <span className="set-no">{i + 1}</span>
                   {formatSet(s, ex, lang)}
+                  {prs.has(s.id) && <span className="pr-badge">🏆 {t("pr")}</span>}
                 </button>
               </li>
             ))}
@@ -229,7 +237,12 @@ function Logger({ ex }: { ex: Exercise }) {
         </>
       )}
 
-      <h2>{t("lastTime")}</h2>
+      <div className="section-head">
+        <h2>{t("lastTime")}</h2>
+        <Link className="link small" to={`/stats/${ex.id}`}>
+          📈 {t("stats")} →
+        </Link>
+      </div>
       {last === undefined ? null : last ? (
         <div className="card">
           <p className="muted small history-date">{formatDay(last.date, lang, true)}</p>
@@ -238,6 +251,7 @@ function Logger({ ex }: { ex: Exercise }) {
               <li key={s.id}>
                 <span className="set-no">{i + 1}</span>
                 {formatSet(s, ex, lang)}
+                {prs.has(s.id) && <span className="pr-badge">{t("pr")}</span>}
               </li>
             ))}
           </ol>

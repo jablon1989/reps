@@ -4,7 +4,9 @@ import { LanguageProvider, browserLanguage, useT } from "./i18n";
 import { MeProvider, type MeStatus } from "./me";
 import { TimerBar } from "./components/TimerBar";
 import { ExercisesProvider } from "./exercises";
-import { ComingSoon } from "./pages/ComingSoon";
+import { HistoryProvider } from "./history";
+import { ExerciseStatsPage } from "./pages/ExerciseStatsPage";
+import { StatsPage } from "./pages/StatsPage";
 import { ExercisesPage } from "./pages/ExercisesPage";
 import { ImportPage } from "./pages/ImportPage";
 import { LogPage } from "./pages/LogPage";
@@ -26,9 +28,11 @@ export function App() {
   return (
     <MeProvider fallback={(s) => <NotReady status={s} />}>
       <ExercisesProvider>
-        <TimerProvider>
-          <Shell />
-        </TimerProvider>
+        <HistoryProvider>
+          <TimerProvider>
+            <Shell />
+          </TimerProvider>
+        </HistoryProvider>
       </ExercisesProvider>
     </MeProvider>
   );
@@ -80,7 +84,8 @@ function Shell() {
           <Route path="/pick" element={<PickPage />} />
           <Route path="/log/:exerciseId" element={<LogPage />} />
           <Route path="/exercises" element={<ExercisesPage />} />
-          <Route path="/stats" element={<ComingSoon icon="📈" title={t("tabStats")} text={t("soonStats")} />} />
+          <Route path="/stats" element={<StatsPage />} />
+          <Route path="/stats/:exerciseId" element={<ExerciseStatsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/import" element={<ImportPage />} />
           <Route path="*" element={<div className="center-screen muted">{t("pageNotFound")}</div>} />
@@ -92,7 +97,7 @@ function Shell() {
           <NavLink
             key={tab.to}
             to={tab.to}
-            end
+            end={tab.to !== "/stats"}
             // Picking and logging an exercise belong to the Workout tab.
             className={({ isActive }) =>
               isActive || (tab.to === "/" && /^\/(pick|log)\b/.test(pathname)) ? "active" : ""
