@@ -1,0 +1,332 @@
+/* Dark, gym-style, phone-first. Light only when the phone asks for it. */
+:root {
+  --bg: #0e1012;
+  --surface: #181b1f;
+  --surface-2: #22262b;
+  --text: #eceff2;
+  --muted: #9aa1a9;
+  --line: #2b3036;
+  --accent: #d4ff3a;
+  --accent-text: #11140a;
+  --accent-soft: #2a3311;
+  --ok: #7ee08a;
+  --danger: #ff8a80;
+  --radius: 16px;
+  --tabbar-h: 68px;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --sans: "Inter", system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f3f4f1;
+    --surface: #ffffff;
+    --surface-2: #eceee9;
+    --text: #16191c;
+    --muted: #61676e;
+    --line: #dcdfd8;
+    --accent: #4d6b00;
+    --accent-text: #ffffff;
+    --accent-soft: #e6efcc;
+    --ok: #2f8a3b;
+    --danger: #b3261e;
+    color-scheme: light;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+h1,
+h2 {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+h1 {
+  font-size: 2.1rem;
+  line-height: 1.1;
+}
+h2 {
+  font-size: 1rem;
+  color: var(--muted);
+  margin: 1.6rem 0 0.6rem;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+p {
+  line-height: 1.5;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 0.85rem;
+}
+.error {
+  color: var(--danger);
+}
+.ok {
+  color: var(--ok);
+}
+.row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.stack {
+  display: grid;
+  gap: 0.6rem;
+}
+
+/* ---------- layout ---------- */
+.app {
+  min-height: 100dvh;
+}
+.main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: calc(1.2rem + env(safe-area-inset-top)) 16px calc(var(--tabbar-h) + 2rem + env(safe-area-inset-bottom));
+}
+.page > h1 {
+  margin-bottom: 1rem;
+}
+.center-screen {
+  min-height: 70dvh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+.card.narrow {
+  max-width: 380px;
+  display: grid;
+  gap: 0.8rem;
+  justify-items: center;
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  font: inherit;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 12px;
+  min-height: 48px;
+  padding: 0 1.1rem;
+  cursor: pointer;
+}
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+.btn.big {
+  min-height: 56px;
+  font-size: 1.05rem;
+  width: 100%;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.btn:focus-visible,
+.segmented button:focus-visible,
+.tabbar a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.pill {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.pill.dim {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+/* ---------- tab bar ---------- */
+.tabbar {
+  position: fixed;
+  inset: auto 0 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+  z-index: 10;
+}
+.tabbar a {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.tabbar a span {
+  font-size: 1.35rem;
+  filter: grayscale(1);
+  opacity: 0.7;
+}
+.tabbar a.active {
+  color: var(--accent);
+}
+.tabbar a.active span {
+  filter: none;
+  opacity: 1;
+}
+
+/* ---------- login ---------- */
+.login {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.login-card {
+  width: min(380px, 100%);
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  text-align: center;
+}
+.login-card .stack {
+  width: 100%;
+}
+.brand {
+  font-size: 3.4rem;
+  text-transform: lowercase;
+  color: var(--accent);
+  letter-spacing: 0.01em;
+}
+
+/* ---------- coming soon ---------- */
+.soon {
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
+}
+.soon-icon {
+  font-size: 2.4rem;
+}
+.soon p {
+  margin: 0;
+}
+
+/* ---------- settings ---------- */
+.segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+}
+.segmented button {
+  font: inherit;
+  font-weight: 600;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.segmented button.on {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+.account {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.people {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.people li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.people .tags {
+  display: flex;
+  gap: 0.3rem;
+}
+.invite {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.4rem;
+}
+.invite label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.invite input {
+  font: inherit;
+  font-size: 1rem;
+  min-height: 48px;
+  padding: 0 0.8rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+}
+.invite input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}
+.invite p {
+  margin: 0.4rem 0 0;
+}
+.footer-link {
+  margin-top: 2rem;
+  text-align: center;
+  color: var(--muted);
+}

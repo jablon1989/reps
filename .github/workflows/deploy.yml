@@ -1,0 +1,75 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false # never stop a terraform apply halfway
+
+env:
+  AWS_REGION: eu-central-1
+  TF_VERSION: 1.16.6
+
+jobs:
+  deploy:
+    name: Deploy prod
+    runs-on: ubuntu-latest
+    environment: prod # the apply role only trusts this environment
+    env:
+      TF_VAR_alert_email: ${{ secrets.TF_VAR_ALERT_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false # so `terraform output -raw` prints clean values
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/frontend/package-lock.json
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_APPLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # ---- infrastructure ----
+      - name: Terraform apply
+        working-directory: terraform/envs/prod
+        run: |
+          terraform init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+          terraform apply -input=false -auto-approve
+
+      - name: Read outputs
+        id: tf
+        working-directory: terraform/envs/prod
+        run: |
+          echo "bucket=$(terraform output -raw web_bucket_name)" >> "$GITHUB_OUTPUT"
+          echo "distribution=$(terraform output -raw distribution_id)" >> "$GITHUB_OUTPUT"
+          echo "url=$(terraform output -raw site_url)" >> "$GITHUB_OUTPUT"
+
+      # ---- frontend ----
+      - name: Build frontend
+        working-directory: app/frontend
+        run: npm ci && npm run build
+
+      - name: Upload to S3
+        working-directory: app/frontend
+        run: |
+          # Hashed files never change -> cache for a year. Everything else -> always revalidate.
+          aws s3 sync dist/assets "s3://${{ steps.tf.outputs.bucket }}/assets" --cache-control "public,max-age=31536000,immutable"
+          aws s3 sync dist "s3://${{ steps.tf.outputs.bucket }}" --delete --exclude "assets/*" --exclude "config.json" --cache-control "no-cache"
+
+      - name: Refresh CloudFront
+        run: aws cloudfront create-invalidation --distribution-id "${{ steps.tf.outputs.distribution }}" --paths "/index.html" "/"
+
+      - name: Summary
+        run: echo "### Deployed to ${{ steps.tf.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
