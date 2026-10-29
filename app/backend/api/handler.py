@@ -7,6 +7,7 @@ shared pusiaczkowo.pl login). On top of that, reps only lets in logins in the
 
 One DynamoDB table, `pk` + `sk`:
   USER#<sub> / SETTINGS   – language, …
+  USER#<sub> / EX#, PREF#, SET#  – exercises and sets (workouts.py)
 """
 
 from __future__ import annotations
@@ -24,6 +25,7 @@ from typing import Any
 import boto3
 
 import people
+import workouts
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -176,11 +178,73 @@ def create_invite(event: dict, _: dict) -> dict:
     return response(201, result)
 
 
+def query_params(event: dict) -> dict:
+    return event.get("queryStringParameters") or {}
+
+
+def get_exercises(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    return response(200, workouts.list_exercises(table, user.pk))
+
+
+def post_exercise(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    return response(201, workouts.create_exercise(table, user.pk, parse_body(event), now_iso()))
+
+
+def patch_exercise(event: dict, path: dict) -> dict:
+    user = current_user(event)
+    return response(
+        200, workouts.update_exercise(table, user.pk, path.get("exerciseId", ""), parse_body(event), now_iso())
+    )
+
+
+def delete_exercise(event: dict, path: dict) -> dict:
+    user = current_user(event)
+    workouts.hide_exercise(table, user.pk, path.get("exerciseId", ""), now_iso())
+    return response(204)
+
+
+def get_history(event: dict, path: dict) -> dict:
+    user = current_user(event)
+    q = query_params(event)
+    try:
+        sessions = max(1, min(int(q.get("sessions") or 5), 50))
+    except ValueError as exc:
+        raise ApiError(400, "sessions must be a number") from exc
+    found = workouts.history(table, user.pk, path.get("exerciseId", ""), q.get("before"), sessions)
+    return response(200, {"sessions": found})
+
+
+def get_sets(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    return response(200, {"sets": workouts.day_sets(table, user.pk, query_params(event).get("date", ""))})
+
+
+def put_set(event: dict, path: dict) -> dict:
+    user = current_user(event)
+    return response(200, workouts.put_set(table, user.pk, path.get("setId", ""), parse_body(event), now_iso()))
+
+
+def delete_set(event: dict, path: dict) -> dict:
+    user = current_user(event)
+    workouts.delete_set(table, user.pk, path.get("setId", ""), query_params(event).get("date", ""))
+    return response(204)
+
+
 ROUTES: dict[str, Callable[[dict, dict], dict]] = {
     "GET /api/me": get_me,
     "PUT /api/me/settings": put_settings,
     "GET /api/admin/people": list_people,
     "POST /api/admin/invites": create_invite,
+    "GET /api/exercises": get_exercises,
+    "POST /api/exercises": post_exercise,
+    "PATCH /api/exercises/{exerciseId}": patch_exercise,
+    "DELETE /api/exercises/{exerciseId}": delete_exercise,
+    "GET /api/exercises/{exerciseId}/history": get_history,
+    "GET /api/sets": get_sets,
+    "PUT /api/sets/{setId}": put_set,
+    "DELETE /api/sets/{setId}": delete_set,
 }
 
 
@@ -191,8 +255,8 @@ def handler(event: dict, context: Any = None) -> dict:
         return response(404, {"message": f"No route {route}"})
     try:
         return fn(event, event.get("pathParameters") or {})
-    except ApiError as err:
-        return response(err.status, {"message": err.message})
+    except (ApiError, workouts.Invalid) as err:
+        return response(err.status, {"message": str(err)})
     except Exception:
         log.exception("Unhandled error on %s", route)
         return response(500, {"message": "Internal error"})

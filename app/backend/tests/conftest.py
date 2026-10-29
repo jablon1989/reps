@@ -16,6 +16,8 @@ os.environ["DATA_TABLE"] = "test-data"
 
 sys.path.insert(0, str(ROOT / "api"))
 
+from schema import TABLE_SCHEMA  # noqa: E402
+
 
 @pytest.fixture
 def aws(monkeypatch):
@@ -25,11 +27,7 @@ def aws(monkeypatch):
         ddb.create_table(
             TableName="test-data",
             BillingMode="PAY_PER_REQUEST",
-            KeySchema=[{"AttributeName": "pk", "KeyType": "HASH"}, {"AttributeName": "sk", "KeyType": "RANGE"}],
-            AttributeDefinitions=[
-                {"AttributeName": "pk", "AttributeType": "S"},
-                {"AttributeName": "sk", "AttributeType": "S"},
-            ],
+            **TABLE_SCHEMA,
         )
         cognito = boto3.client("cognito-idp", region_name="eu-central-1")
         pool_id = cognito.create_user_pool(PoolName="aurathehusky-users")["UserPool"]["Id"]

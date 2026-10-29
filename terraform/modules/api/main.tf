@@ -10,6 +10,14 @@ locals {
     "PUT /api/me/settings",
     "GET /api/admin/people",
     "POST /api/admin/invites",
+    "GET /api/exercises",
+    "POST /api/exercises",
+    "PATCH /api/exercises/{exerciseId}",
+    "DELETE /api/exercises/{exerciseId}",
+    "GET /api/exercises/{exerciseId}/history",
+    "GET /api/sets",
+    "PUT /api/sets/{setId}",
+    "DELETE /api/sets/{setId}",
   ]
 }
 
@@ -21,7 +29,7 @@ data "archive_file" "api" {
   output_path = "${path.root}/.build/api.zip"
 
   dynamic "source" {
-    for_each = fileset(var.source_dir, "*.py")
+    for_each = fileset(var.source_dir, "*.{py,json}")
     content {
       content  = file("${var.source_dir}/${source.value}")
       filename = source.value
@@ -61,7 +69,7 @@ data "aws_iam_policy_document" "api" {
       "dynamodb:Query",
       "dynamodb:Scan",
     ]
-    resources = [var.data_table_arn]
+    resources = [var.data_table_arn, "${var.data_table_arn}/index/*"]
   }
 
   # Who has access, and inviting friends (Cognito e-mails the invite).

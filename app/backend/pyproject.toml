@@ -6,7 +6,7 @@ target-version = "py313"
 select = ["E", "F", "I", "B", "UP"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["handler", "people"]
+known-first-party = ["handler", "people", "workouts"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

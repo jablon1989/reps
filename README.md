@@ -26,7 +26,8 @@ Each person's data is keyed by their login's `sub`.
 ## Layout
 
 ```
-app/backend/api      Python Lambda: the API (handler.py, people.py)
+app/backend/api      Python Lambda: the API (handler.py, people.py, workouts.py)
+                     + catalogue.json: the built-in exercises, EN/PL, by body part
 app/frontend         React + Vite, dark and phone-first, EN/PL (src/i18n.tsx)
 terraform/bootstrap  state bucket + GitHub deploy roles (run once, by hand)
 terraform/envs/prod  the app: CloudFront, API Gateway, Lambda, DynamoDB

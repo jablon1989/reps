@@ -18,7 +18,7 @@ import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qsl, unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 REGION = "eu-central-1"
@@ -36,6 +36,9 @@ import boto3  # noqa: E402
 from moto import mock_aws  # noqa: E402
 
 sys.path.insert(0, str(ROOT / "app" / "backend" / "api"))
+sys.path.insert(0, str(ROOT / "app" / "backend" / "tests"))
+from schema import TABLE_SCHEMA  # noqa: E402
+
 LOCK = threading.Lock()  # one request at a time: simple and safe with moto
 
 
@@ -44,11 +47,7 @@ def setup_aws(players: list[str]) -> str:
     boto3.client("dynamodb", region_name=REGION).create_table(
         TableName="local-data",
         BillingMode="PAY_PER_REQUEST",
-        KeySchema=[{"AttributeName": "pk", "KeyType": "HASH"}, {"AttributeName": "sk", "KeyType": "RANGE"}],
-        AttributeDefinitions=[
-            {"AttributeName": "pk", "AttributeType": "S"},
-            {"AttributeName": "sk", "AttributeType": "S"},
-        ],
+        **TABLE_SCHEMA,
     )
     cognito = boto3.client("cognito-idp", region_name=REGION)
     pool_id = cognito.create_user_pool(PoolName="local-users")["UserPool"]["Id"]
@@ -123,6 +122,7 @@ class Handler(BaseHTTPRequestHandler):
         event = {
             "routeKey": route,
             "pathParameters": {k: unquote(v) for k, v in m.groupdict().items()} or None,
+            "queryStringParameters": dict(parse_qsl(urlparse(self.path).query)) or None,
             "body": self._body().decode() or None,
             "requestContext": {"authorizer": {"jwt": {"claims": self._claims(unquote(auth[len("Bearer dev:") :]))}}},
         }

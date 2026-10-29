@@ -1,0 +1,809 @@
+{
+ "categories": [
+  {
+   "id": "shoulders",
+   "en": "Shoulders",
+   "pl": "Barki"
+  },
+  {
+   "id": "triceps",
+   "en": "Triceps",
+   "pl": "Triceps"
+  },
+  {
+   "id": "biceps",
+   "en": "Biceps",
+   "pl": "Biceps"
+  },
+  {
+   "id": "chest",
+   "en": "Chest",
+   "pl": "Klatka piersiowa"
+  },
+  {
+   "id": "back",
+   "en": "Back",
+   "pl": "Plecy"
+  },
+  {
+   "id": "legs",
+   "en": "Legs",
+   "pl": "Nogi"
+  },
+  {
+   "id": "abs",
+   "en": "Abs",
+   "pl": "Brzuch"
+  },
+  {
+   "id": "cardio",
+   "en": "Cardio",
+   "pl": "Cardio"
+  }
+ ],
+ "exercises": [
+  {
+   "id": "lateral-dumbbell-raise",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Lateral Dumbbell Raise",
+   "pl": "Unoszenie hantli bokiem"
+  },
+  {
+   "id": "seated-dumbbell-press",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Seated Dumbbell Press",
+   "pl": "Wyciskanie hantli siedząc"
+  },
+  {
+   "id": "rear-delt-machine-fly",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Rear Delt Machine Fly",
+   "pl": "Odwrotne rozpiętki na maszynie"
+  },
+  {
+   "id": "cable-lateral-raise",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Cable Lateral Raise",
+   "pl": "Unoszenie ramienia bokiem na wyciągu"
+  },
+  {
+   "id": "lateral-machine-raise",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Lateral Machine Raise",
+   "pl": "Unoszenie ramion bokiem na maszynie"
+  },
+  {
+   "id": "overhead-press",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Overhead Press",
+   "pl": "Wyciskanie żołnierskie"
+  },
+  {
+   "id": "front-dumbbell-raise",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Front Dumbbell Raise",
+   "pl": "Unoszenie hantli przodem"
+  },
+  {
+   "id": "push-press",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Push Press",
+   "pl": "Wyciskanie z podrzutem"
+  },
+  {
+   "id": "behind-the-neck-barbell-press",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Behind The Neck Barbell Press",
+   "pl": "Wyciskanie sztangi zza karku"
+  },
+  {
+   "id": "hammer-strength-shoulder-press",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Hammer Strength Shoulder Press",
+   "pl": "Wyciskanie nad głowę na maszynie Hammer"
+  },
+  {
+   "id": "seated-dumbbell-lateral-raise",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Seated Dumbbell Lateral Raise",
+   "pl": "Unoszenie hantli bokiem siedząc"
+  },
+  {
+   "id": "rear-delt-dumbbell-raise",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Rear Delt Dumbbell Raise",
+   "pl": "Unoszenie hantli w opadzie tułowia"
+  },
+  {
+   "id": "arnold-dumbbell-press",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Arnold Dumbbell Press",
+   "pl": "Wyciskanie Arnolda"
+  },
+  {
+   "id": "one-arm-standing-dumbbell-press",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "One-Arm Standing Dumbbell Press",
+   "pl": "Wyciskanie hantla jednorącz stojąc"
+  },
+  {
+   "id": "cable-face-pull",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Cable Face Pull",
+   "pl": "Face pull na wyciągu"
+  },
+  {
+   "id": "smith-machine-overhead-press",
+   "category": "shoulders",
+   "type": "weight_reps",
+   "en": "Smith Machine Overhead Press",
+   "pl": "Wyciskanie nad głowę na suwnicy Smitha"
+  },
+  {
+   "id": "rope-push-down",
+   "category": "triceps",
+   "type": "weight_reps",
+   "en": "Rope Push Down",
+   "pl": "Prostowanie ramion na wyciągu z liną"
+  },
+  {
+   "id": "ez-bar-skullcrusher",
+   "category": "triceps",
+   "type": "weight_reps",
+   "en": "EZ-Bar Skullcrusher",
+   "pl": "Wyciskanie francuskie sztangą łamaną leżąc"
+  },
+  {
+   "id": "dumbbell-overhead-triceps-extension",
+   "category": "triceps",
+   "type": "weight_reps",
+   "en": "Dumbbell Overhead Triceps Extension",
+   "pl": "Wyciskanie francuskie hantlem nad głową"
+  },
+  {
+   "id": "close-grip-barbell-bench-press",
+   "category": "triceps",
+   "type": "weight_reps",
+   "en": "Close Grip Barbell Bench Press",
+   "pl": "Wyciskanie sztangi wąsko"
+  },
+  {
+   "id": "v-bar-push-down",
+   "category": "triceps",
+   "type": "weight_reps",
+   "en": "V-Bar Push Down",
+   "pl": "Prostowanie ramion na wyciągu z uchwytem V"
+  },
+  {
+   "id": "lying-triceps-extension",
+   "category": "triceps",
+   "type": "weight_reps",
+   "en": "Lying Triceps Extension",
+   "pl": "Prostowanie ramion leżąc"
+  },
+  {
+   "id": "cable-overhead-triceps-extension",
+   "category": "triceps",
+   "type": "weight_reps",
+   "en": "Cable Overhead Triceps Extension",
+   "pl": "Prostowanie ramion nad głową na wyciągu"
+  },
+  {
+   "id": "smith-machine-close-grip-bench-press",
+   "category": "triceps",
+   "type": "weight_reps",
+   "en": "Smith Machine Close Grip Bench Press",
+   "pl": "Wyciskanie wąsko na suwnicy Smitha"
+  },
+  {
+   "id": "parallel-bar-triceps-dip",
+   "category": "triceps",
+   "type": "bodyweight_reps",
+   "en": "Parallel Bar Triceps Dip",
+   "pl": "Pompki na poręczach (dipy)"
+  },
+  {
+   "id": "ring-dip",
+   "category": "triceps",
+   "type": "bodyweight_reps",
+   "en": "Ring Dip",
+   "pl": "Dipy na kółkach"
+  },
+  {
+   "id": "cable-curl",
+   "category": "biceps",
+   "type": "weight_reps",
+   "en": "Cable Curl",
+   "pl": "Uginanie ramion na wyciągu"
+  },
+  {
+   "id": "dumbbell-curl",
+   "category": "biceps",
+   "type": "weight_reps",
+   "en": "Dumbbell Curl",
+   "pl": "Uginanie ramion z hantlami"
+  },
+  {
+   "id": "ez-bar-curl",
+   "category": "biceps",
+   "type": "weight_reps",
+   "en": "EZ-Bar Curl",
+   "pl": "Uginanie ramion ze sztangą łamaną"
+  },
+  {
+   "id": "seated-incline-dumbbell-curl",
+   "category": "biceps",
+   "type": "weight_reps",
+   "en": "Seated Incline Dumbbell Curl",
+   "pl": "Uginanie ramion z hantlami na ławce skośnej"
+  },
+  {
+   "id": "barbell-curl",
+   "category": "biceps",
+   "type": "weight_reps",
+   "en": "Barbell Curl",
+   "pl": "Uginanie ramion ze sztangą"
+  },
+  {
+   "id": "seated-machine-curl",
+   "category": "biceps",
+   "type": "weight_reps",
+   "en": "Seated Machine Curl",
+   "pl": "Uginanie ramion na maszynie"
+  },
+  {
+   "id": "dumbbell-hammer-curl",
+   "category": "biceps",
+   "type": "weight_reps",
+   "en": "Dumbbell Hammer Curl",
+   "pl": "Uginanie młotkowe z hantlami"
+  },
+  {
+   "id": "ez-bar-preacher-curl",
+   "category": "biceps",
+   "type": "weight_reps",
+   "en": "EZ-Bar Preacher Curl",
+   "pl": "Uginanie na modlitewniku sztangą łamaną"
+  },
+  {
+   "id": "dumbbell-concentration-curl",
+   "category": "biceps",
+   "type": "weight_reps",
+   "en": "Dumbbell Concentration Curl",
+   "pl": "Uginanie koncentrowane z hantlem"
+  },
+  {
+   "id": "dumbbell-preacher-curl",
+   "category": "biceps",
+   "type": "weight_reps",
+   "en": "Dumbbell Preacher Curl",
+   "pl": "Uginanie na modlitewniku z hantlem"
+  },
+  {
+   "id": "flat-dumbbell-bench-press",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Flat Dumbbell Bench Press",
+   "pl": "Wyciskanie hantli na ławce płaskiej"
+  },
+  {
+   "id": "incline-dumbbell-bench-press",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Incline Dumbbell Bench Press",
+   "pl": "Wyciskanie hantli na ławce skośnej"
+  },
+  {
+   "id": "chest-press",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Chest Press",
+   "pl": "Wyciskanie na maszynie"
+  },
+  {
+   "id": "pec-deck-fly",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Pec Deck Fly",
+   "pl": "Rozpiętki na maszynie (butterfly)"
+  },
+  {
+   "id": "seated-machine-fly",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Seated Machine Fly",
+   "pl": "Rozpiętki na maszynie siedząc"
+  },
+  {
+   "id": "flat-barbell-bench-press",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Flat Barbell Bench Press",
+   "pl": "Wyciskanie sztangi na ławce płaskiej"
+  },
+  {
+   "id": "incline-barbell-bench-press",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Incline Barbell Bench Press",
+   "pl": "Wyciskanie sztangi na ławce skośnej"
+  },
+  {
+   "id": "decline-barbell-bench-press",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Decline Barbell Bench Press",
+   "pl": "Wyciskanie sztangi na ławce ujemnej"
+  },
+  {
+   "id": "flat-dumbbell-fly",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Flat Dumbbell Fly",
+   "pl": "Rozpiętki z hantlami na ławce płaskiej"
+  },
+  {
+   "id": "incline-dumbbell-fly",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Incline Dumbbell Fly",
+   "pl": "Rozpiętki z hantlami na ławce skośnej"
+  },
+  {
+   "id": "cable-crossover",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Cable Crossover",
+   "pl": "Krzyżowanie linek wyciągu"
+  },
+  {
+   "id": "incline-hammer-strength-chest-press",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Incline Hammer Strength Chest Press",
+   "pl": "Wyciskanie skośne na maszynie Hammer"
+  },
+  {
+   "id": "decline-hammer-strength-chest-press",
+   "category": "chest",
+   "type": "weight_reps",
+   "en": "Decline Hammer Strength Chest Press",
+   "pl": "Wyciskanie ujemne na maszynie Hammer"
+  },
+  {
+   "id": "push-up",
+   "category": "chest",
+   "type": "bodyweight_reps",
+   "en": "Push Up",
+   "pl": "Pompki"
+  },
+  {
+   "id": "lat-pulldown",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Lat Pulldown",
+   "pl": "Ściąganie drążka wyciągu górnego"
+  },
+  {
+   "id": "seated-cable-row",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Seated Cable Row",
+   "pl": "Wiosłowanie na wyciągu dolnym"
+  },
+  {
+   "id": "chest-supported-machine-row",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Chest-Supported Machine Row",
+   "pl": "Wiosłowanie na maszynie z podparciem klatki"
+  },
+  {
+   "id": "45-degree-extension",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "45 Degree Extension",
+   "pl": "Prostowanie tułowia na ławce 45°"
+  },
+  {
+   "id": "back-extension",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Back Extension",
+   "pl": "Prostowanie tułowia (hiperekstensja)"
+  },
+  {
+   "id": "hammer-strength-row",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Hammer Strength Row",
+   "pl": "Wiosłowanie na maszynie Hammer"
+  },
+  {
+   "id": "dumbbell-row",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Dumbbell Row",
+   "pl": "Wiosłowanie hantlem"
+  },
+  {
+   "id": "deadlift",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Deadlift",
+   "pl": "Martwy ciąg"
+  },
+  {
+   "id": "barbell-row",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Barbell Row",
+   "pl": "Wiosłowanie sztangą"
+  },
+  {
+   "id": "pendlay-row",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Pendlay Row",
+   "pl": "Wiosłowanie Pendlay"
+  },
+  {
+   "id": "t-bar-row",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "T-Bar Row",
+   "pl": "Wiosłowanie T-sztangą"
+  },
+  {
+   "id": "barbell-shrug",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Barbell Shrug",
+   "pl": "Szrugsy ze sztangą"
+  },
+  {
+   "id": "machine-shrug",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Machine Shrug",
+   "pl": "Szrugsy na maszynie"
+  },
+  {
+   "id": "straight-arm-cable-pushdown",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Straight-Arm Cable Pushdown",
+   "pl": "Ściąganie drążka prostymi ramionami"
+  },
+  {
+   "id": "rack-pull",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Rack Pull",
+   "pl": "Martwy ciąg z podwyższenia"
+  },
+  {
+   "id": "good-morning",
+   "category": "back",
+   "type": "weight_reps",
+   "en": "Good Morning",
+   "pl": "Skłony ze sztangą (good morning)"
+  },
+  {
+   "id": "pull-up",
+   "category": "back",
+   "type": "bodyweight_reps",
+   "en": "Pull Up",
+   "pl": "Podciąganie nachwytem"
+  },
+  {
+   "id": "chin-up",
+   "category": "back",
+   "type": "bodyweight_reps",
+   "en": "Chin Up",
+   "pl": "Podciąganie podchwytem"
+  },
+  {
+   "id": "neutral-chin-up",
+   "category": "back",
+   "type": "bodyweight_reps",
+   "en": "Neutral Chin Up",
+   "pl": "Podciąganie chwytem neutralnym"
+  },
+  {
+   "id": "leg-extension-machine",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Leg Extension Machine",
+   "pl": "Prostowanie nóg na maszynie"
+  },
+  {
+   "id": "seated-leg-curl-machine",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Seated Leg Curl Machine",
+   "pl": "Uginanie nóg siedząc na maszynie"
+  },
+  {
+   "id": "seated-leg-press",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Seated Leg Press",
+   "pl": "Wypychanie nóg siedząc"
+  },
+  {
+   "id": "seated-calf-raise-machine",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Seated Calf Raise Machine",
+   "pl": "Wspięcia na palce siedząc"
+  },
+  {
+   "id": "leg-press",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Leg Press",
+   "pl": "Wypychanie nóg na suwnicy"
+  },
+  {
+   "id": "abduction",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Abduction",
+   "pl": "Odwodzenie nóg na maszynie"
+  },
+  {
+   "id": "adduction",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Adduction",
+   "pl": "Przywodzenie nóg na maszynie"
+  },
+  {
+   "id": "standing-calf-raise-machine",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Standing Calf Raise Machine",
+   "pl": "Wspięcia na palce stojąc na maszynie"
+  },
+  {
+   "id": "lying-leg-curl-machine",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Lying Leg Curl Machine",
+   "pl": "Uginanie nóg leżąc na maszynie"
+  },
+  {
+   "id": "romanian-deadlift",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Romanian Deadlift",
+   "pl": "Martwy ciąg rumuński"
+  },
+  {
+   "id": "hip-thrust",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Hip Thrust",
+   "pl": "Hip thrust"
+  },
+  {
+   "id": "barbell-squat",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Barbell Squat",
+   "pl": "Przysiad ze sztangą"
+  },
+  {
+   "id": "barbell-front-squat",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Barbell Front Squat",
+   "pl": "Przysiad przedni"
+  },
+  {
+   "id": "hack-squat",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Hack Squat",
+   "pl": "Przysiad na maszynie hack"
+  },
+  {
+   "id": "bulgarian-split-squat",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Bulgarian Split Squat",
+   "pl": "Przysiad bułgarski"
+  },
+  {
+   "id": "dumbbell-walking-lunge",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Dumbbell Walking Lunge",
+   "pl": "Wykroki z hantlami"
+  },
+  {
+   "id": "donkey-calf-raise",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Donkey Calf Raise",
+   "pl": "Wspięcia na palce w opadzie"
+  },
+  {
+   "id": "barbell-calf-raise",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Barbell Calf Raise",
+   "pl": "Wspięcia na palce ze sztangą"
+  },
+  {
+   "id": "barbell-glute-bridge",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Barbell Glute Bridge",
+   "pl": "Mostek biodrowy ze sztangą"
+  },
+  {
+   "id": "glute-ham-raise",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Glute-Ham Raise",
+   "pl": "Glute-ham raise"
+  },
+  {
+   "id": "stiff-legged-deadlift",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Stiff-Legged Deadlift",
+   "pl": "Martwy ciąg na prostych nogach"
+  },
+  {
+   "id": "sumo-deadlift",
+   "category": "legs",
+   "type": "weight_reps",
+   "en": "Sumo Deadlift",
+   "pl": "Martwy ciąg sumo"
+  },
+  {
+   "id": "crunch-machine",
+   "category": "abs",
+   "type": "weight_reps",
+   "en": "Crunch Machine",
+   "pl": "Spięcia brzucha na maszynie"
+  },
+  {
+   "id": "cable-crunch",
+   "category": "abs",
+   "type": "weight_reps",
+   "en": "Cable Crunch",
+   "pl": "Spięcia brzucha na wyciągu"
+  },
+  {
+   "id": "abdominal-crunch",
+   "category": "abs",
+   "type": "weight_reps",
+   "en": "Abdominal Crunch",
+   "pl": "Spięcia brzucha"
+  },
+  {
+   "id": "crunch",
+   "category": "abs",
+   "type": "bodyweight_reps",
+   "en": "Crunch",
+   "pl": "Brzuszki"
+  },
+  {
+   "id": "decline-crunch",
+   "category": "abs",
+   "type": "bodyweight_reps",
+   "en": "Decline Crunch",
+   "pl": "Brzuszki na ławce skośnej"
+  },
+  {
+   "id": "ab-wheel-rollout",
+   "category": "abs",
+   "type": "bodyweight_reps",
+   "en": "Ab-Wheel Rollout",
+   "pl": "Rolowanie kółkiem do brzucha"
+  },
+  {
+   "id": "hanging-knee-raise",
+   "category": "abs",
+   "type": "bodyweight_reps",
+   "en": "Hanging Knee Raise",
+   "pl": "Unoszenie kolan w zwisie"
+  },
+  {
+   "id": "hanging-leg-raise",
+   "category": "abs",
+   "type": "bodyweight_reps",
+   "en": "Hanging Leg Raise",
+   "pl": "Unoszenie nóg w zwisie"
+  },
+  {
+   "id": "dragon-flag",
+   "category": "abs",
+   "type": "bodyweight_reps",
+   "en": "Dragon Flag",
+   "pl": "Dragon flag"
+  },
+  {
+   "id": "running-treadmill",
+   "category": "cardio",
+   "type": "cardio",
+   "en": "Running (Treadmill)",
+   "pl": "Bieg na bieżni"
+  },
+  {
+   "id": "running-outdoor",
+   "category": "cardio",
+   "type": "cardio",
+   "en": "Running (Outdoor)",
+   "pl": "Bieganie w terenie"
+  },
+  {
+   "id": "walking",
+   "category": "cardio",
+   "type": "cardio",
+   "en": "Walking",
+   "pl": "Spacer"
+  },
+  {
+   "id": "cycling",
+   "category": "cardio",
+   "type": "cardio",
+   "en": "Cycling",
+   "pl": "Jazda na rowerze"
+  },
+  {
+   "id": "stationary-bike",
+   "category": "cardio",
+   "type": "cardio",
+   "en": "Stationary Bike",
+   "pl": "Rower stacjonarny"
+  },
+  {
+   "id": "rowing-machine",
+   "category": "cardio",
+   "type": "cardio",
+   "en": "Rowing Machine",
+   "pl": "Wioślarz"
+  },
+  {
+   "id": "elliptical-trainer",
+   "category": "cardio",
+   "type": "cardio",
+   "en": "Elliptical Trainer",
+   "pl": "Orbitrek"
+  },
+  {
+   "id": "stair-climber",
+   "category": "cardio",
+   "type": "cardio",
+   "en": "Stair Climber",
+   "pl": "Schody (stepper)"
+  },
+  {
+   "id": "swimming",
+   "category": "cardio",
+   "type": "cardio",
+   "en": "Swimming",
+   "pl": "Pływanie"
+  }
+ ]
+}

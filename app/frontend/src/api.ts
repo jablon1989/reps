@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useSession } from "./session";
-import type { Me, Person, Settings } from "./types";
+import type { Category, Exercise, ExerciseInput, Me, Person, Session, Settings, WorkSet } from "./types";
 
 export class ApiError extends Error {
   constructor(
@@ -39,6 +39,19 @@ function createApi(token: string | undefined) {
     people: () => call<{ people: Person[] }>("GET", "/admin/people").then((r) => r.people),
     invite: (email: string, name: string) =>
       call<{ email: string; name: string; new: boolean }>("POST", "/admin/invites", { email, name }),
+
+    exercises: () => call<{ categories: Category[]; exercises: Exercise[] }>("GET", "/exercises"),
+    createExercise: (input: ExerciseInput) => call<Exercise>("POST", "/exercises", input),
+    updateExercise: (id: string, input: ExerciseInput) => call<Exercise>("PATCH", `/exercises/${id}`, input),
+    deleteExercise: (id: string) => call<void>("DELETE", `/exercises/${id}`),
+    history: (id: string, before: string, sessions = 3) =>
+      call<{ sessions: Session[] }>("GET", `/exercises/${id}/history?before=${before}&sessions=${sessions}`).then(
+        (r) => r.sessions,
+      ),
+
+    sets: (date: string) => call<{ sets: WorkSet[] }>("GET", `/sets?date=${date}`).then((r) => r.sets),
+    saveSet: (set: WorkSet) => call<WorkSet>("PUT", `/sets/${set.id}`, set),
+    deleteSet: (set: WorkSet) => call<void>("DELETE", `/sets/${set.id}?date=${set.date}`),
   };
 }
 

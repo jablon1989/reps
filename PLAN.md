@@ -61,7 +61,7 @@ DynamoDB, Cognito, Terraform, GitHub Actions. The frontend is React + Vite.
    - repo from the to-do-list template, Terraform (bootstrap + prod)
    - `reps.pusiaczkowo.pl`, shared login with reps groups, admin invites
    - CI, and a tile on pusiaczkowo.pl
-2. **Logging**
+2. **Logging** ✅
    - exercise catalogue (EN/PL)
    - custom exercises and favourites
    - the day log

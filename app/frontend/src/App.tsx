@@ -1,10 +1,17 @@
-import { NavLink, Route, Routes } from "react-router";
+import { NavLink, Route, Routes, useLocation } from "react-router";
 import { ApiError } from "./api";
 import { LanguageProvider, browserLanguage, useT } from "./i18n";
 import { MeProvider, type MeStatus } from "./me";
+import { TimerBar } from "./components/TimerBar";
+import { ExercisesProvider } from "./exercises";
 import { ComingSoon } from "./pages/ComingSoon";
+import { ExercisesPage } from "./pages/ExercisesPage";
+import { LogPage } from "./pages/LogPage";
 import { LoginPage } from "./pages/LoginPage";
+import { PickPage } from "./pages/PickPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { WorkoutPage } from "./pages/WorkoutPage";
+import { TimerProvider } from "./timer";
 import { useSession } from "./session";
 
 export function App() {
@@ -17,7 +24,11 @@ export function App() {
   }
   return (
     <MeProvider fallback={(s) => <NotReady status={s} />}>
-      <Shell />
+      <ExercisesProvider>
+        <TimerProvider>
+          <Shell />
+        </TimerProvider>
+      </ExercisesProvider>
     </MeProvider>
   );
 }
@@ -52,31 +63,39 @@ function NotReady({ status }: { status: MeStatus }) {
 }
 
 const TABS = [
-  { to: "/", icon: "🏋️", label: "tabWorkout", soon: "soonWorkout" },
-  { to: "/exercises", icon: "📋", label: "tabExercises", soon: "soonExercises" },
-  { to: "/stats", icon: "📈", label: "tabStats", soon: "soonStats" },
+  { to: "/", icon: "🏋️", label: "tabWorkout" },
+  { to: "/exercises", icon: "📋", label: "tabExercises" },
+  { to: "/stats", icon: "📈", label: "tabStats" },
 ] as const;
 
 function Shell() {
   const t = useT();
+  const { pathname } = useLocation();
   return (
     <div className="app">
       <main className="main">
         <Routes>
-          {TABS.map((tab) => (
-            <Route
-              key={tab.to}
-              path={tab.to}
-              element={<ComingSoon icon={tab.icon} title={t(tab.label)} text={t(tab.soon)} />}
-            />
-          ))}
+          <Route path="/" element={<WorkoutPage />} />
+          <Route path="/pick" element={<PickPage />} />
+          <Route path="/log/:exerciseId" element={<LogPage />} />
+          <Route path="/exercises" element={<ExercisesPage />} />
+          <Route path="/stats" element={<ComingSoon icon="📈" title={t("tabStats")} text={t("soonStats")} />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<div className="center-screen muted">{t("pageNotFound")}</div>} />
         </Routes>
       </main>
+      <TimerBar />
       <nav className="tabbar" aria-label="Main">
         {TABS.map((tab) => (
-          <NavLink key={tab.to} to={tab.to} end>
+          <NavLink
+            key={tab.to}
+            to={tab.to}
+            end
+            // Picking and logging an exercise belong to the Workout tab.
+            className={({ isActive }) =>
+              isActive || (tab.to === "/" && /^\/(pick|log)\b/.test(pathname)) ? "active" : ""
+            }
+          >
             <span aria-hidden>{tab.icon}</span>
             {t(tab.label)}
           </NavLink>
