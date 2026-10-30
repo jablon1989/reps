@@ -179,7 +179,7 @@ p {
   position: fixed;
   inset: auto 0 0 0;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   background: color-mix(in srgb, var(--surface) 92%, transparent);
@@ -1402,4 +1402,48 @@ p {
 }
 .drive p {
   margin: 0;
+}
+
+/* ---------- date picker ---------- */
+.date-label {
+  font: inherit;
+  color: var(--text);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.date-bar .icon-btn:disabled {
+  opacity: 0.3;
+}
+.to-today {
+  display: block;
+  margin: -0.6rem 0 0.8rem auto;
+}
+.calendar button.cal-day {
+  font: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.calendar button.cal-day.trained {
+  background: var(--surface-2);
+}
+.calendar button.cal-day:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.cal-day.selected {
+  background: var(--accent) !important;
+  color: var(--accent-text) !important;
+}
+.sheet .calendar {
+  border: 0;
+  padding: 0;
+}
+.cal-actions {
+  margin-top: 0.8rem;
+}
+.tabbar a {
+  font-size: 0.62rem;
+  white-space: nowrap;
 }

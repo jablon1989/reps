@@ -122,6 +122,10 @@ function Shell() {
             {t(tab.label)}
           </NavLink>
         ))}
+        <a href="https://pusiaczkowo.pl" title="All our apps">
+          <span aria-hidden>🏠</span>
+          {t("home")}
+        </a>
         <NavLink to="/settings">
           <span aria-hidden>⚙️</span>
           {t("tabSettings")}

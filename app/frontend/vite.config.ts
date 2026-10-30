@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react";
+import { readFileSync } from "node:fs";
 import { defineConfig, loadEnv } from "vite";
 
 // Local dev:
@@ -10,6 +11,9 @@ export default defineConfig(({ mode }) => {
   const local = target?.startsWith("http://localhost");
   return {
     plugins: [react()],
+    // The app's version (package.json), shown in Settings. Each change adds 0.0.1;
+    // the deploy workflow tags it as v<version> on GitHub.
+    define: { __APP_VERSION__: JSON.stringify(JSON.parse(readFileSync("package.json", "utf8")).version) },
     server: {
       port: 5174,
       strictPort: true,

@@ -22,6 +22,9 @@ jobs:
     name: Deploy prod
     runs-on: ubuntu-latest
     environment: prod # the apply role only trusts this environment
+    permissions:
+      contents: write # tag the version after a good deploy
+      id-token: write
     env:
       TF_VAR_alert_email: ${{ secrets.TF_VAR_ALERT_EMAIL }}
     steps:
@@ -73,3 +76,20 @@ jobs:
 
       - name: Summary
         run: echo "### Deployed to ${{ steps.tf.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+
+      # ---- version tag ----
+      # app/frontend/package.json holds the version (shown in Settings); each
+      # change adds 0.0.1. A new version gets a tag and a GitHub release.
+      - name: Tag the version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="v$(node -p "require('./app/frontend/package.json').version")"
+          if git ls-remote --exit-code --tags origin "refs/tags/$v" > /dev/null; then
+            echo "$v is already tagged – bump the version in app/frontend/package.json for a new one"
+          else
+            git tag "$v" "$GITHUB_SHA"
+            git push origin "$v"
+            gh release create "$v" --title "reps $v" --generate-notes --verify-tag
+            echo "### Tagged $v" >> "$GITHUB_STEP_SUMMARY"
+          fi

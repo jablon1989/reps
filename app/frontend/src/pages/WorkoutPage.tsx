@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
+import { Calendar } from "../components/Calendar";
 import { useDocs } from "../docs";
 import { useHistory } from "../history";
 import { addDays, formatDay, todayIso } from "../dates";
@@ -21,26 +22,65 @@ export function dayQuery(day: string): string {
 export function DateBar({ day, onChange }: { day: string; onChange: (day: string) => void }) {
   const t = useT();
   const lang = useLanguage();
+  const history = useHistory();
+  const [picking, setPicking] = useState(false);
   const today = todayIso();
   const label = day === today ? t("today") : day === addDays(today, -1) ? t("yesterday") : formatDay(day, lang);
   return (
-    <div className="date-bar">
-      <button className="icon-btn" aria-label={t("prevDay")} onClick={() => onChange(addDays(day, -1))}>
-        ‹
-      </button>
-      <div className="date-label">
-        <strong>{label}</strong>
-        {day !== today && (
-          <button className="link small" onClick={() => onChange(today)}>
-            {t("today")} →
-          </button>
-        )}
-        {day === today && <span className="muted small">{formatDay(day, lang, true)}</span>}
+    <>
+      <div className="date-bar">
+        <button className="icon-btn" aria-label={t("prevDay")} onClick={() => onChange(addDays(day, -1))}>
+          ‹
+        </button>
+        <button className="date-label" onClick={() => setPicking(true)} aria-label={t("pickDay")}>
+          <strong>
+            {label} <span aria-hidden>📅</span>
+          </strong>
+          <span className="muted small">{day === today ? formatDay(day, lang, true) : t("pickDay")}</span>
+        </button>
+        <button
+          className="icon-btn"
+          aria-label={t("nextDay")}
+          onClick={() => onChange(addDays(day, 1))}
+          disabled={day >= today}
+        >
+          ›
+        </button>
       </div>
-      <button className="icon-btn" aria-label={t("nextDay")} onClick={() => onChange(addDays(day, 1))}>
-        ›
-      </button>
-    </div>
+      {day !== today && (
+        <button className="link small to-today" onClick={() => onChange(today)}>
+          {t("today")} →
+        </button>
+      )}
+      {picking && (
+        <div className="sheet-backdrop" onClick={() => setPicking(false)}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <Calendar
+              sets={history.sets ?? []}
+              selected={day}
+              onPick={(d) => {
+                onChange(d);
+                setPicking(false);
+              }}
+            />
+            <div className="row end cal-actions">
+              <button
+                className="btn"
+                onClick={() => {
+                  onChange(today);
+                  setPicking(false);
+                }}
+              >
+                {t("today")}
+              </button>
+              <button className="btn" onClick={() => setPicking(false)}>
+                {t("cancel")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

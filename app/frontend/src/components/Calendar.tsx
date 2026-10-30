@@ -6,13 +6,24 @@ import { useLanguage, useT } from "../i18n";
 import type { WorkSet } from "../types";
 import { dayQuery } from "../pages/WorkoutPage";
 
-/** A month of training days; dots = body parts done that day. Tap a day to open it. */
-export function Calendar({ sets }: { sets: WorkSet[] }) {
+/**
+ * A month of training days; dots = body parts done that day. Tap a day to open
+ * it – or, with `onPick`, to choose any day up to today (the date bar's picker).
+ */
+export function Calendar({
+  sets,
+  selected,
+  onPick,
+}: {
+  sets: WorkSet[];
+  selected?: string;
+  onPick?: (day: string) => void;
+}) {
   const t = useT();
   const lang = useLanguage();
   const { byId, categories } = useExercises();
   const today = todayIso();
-  const [month, setMonth] = useState(today.slice(0, 7)); // YYYY-MM
+  const [month, setMonth] = useState((selected ?? today).slice(0, 7)); // YYYY-MM
 
   const partsByDay = useMemo(() => {
     const map = new Map<string, Set<string>>();
@@ -73,7 +84,7 @@ export function Calendar({ sets }: { sets: WorkSet[] }) {
         {days.map((d) => {
           const parts = partsByDay.get(d);
           const label = String(Number(d.slice(8)));
-          const cls = `cal-day${parts ? " trained" : ""}${d === today ? " today" : ""}`;
+          const cls = `cal-day${parts ? " trained" : ""}${d === today ? " today" : ""}${d === selected ? " selected" : ""}`;
           const dots = parts && (
             <span className="cal-dots" aria-hidden>
               {order
@@ -84,6 +95,14 @@ export function Calendar({ sets }: { sets: WorkSet[] }) {
                 ))}
             </span>
           );
+          if (onPick) {
+            return (
+              <button key={d} className={cls} disabled={d > today} onClick={() => onPick(d)} aria-label={d}>
+                {label}
+                {dots}
+              </button>
+            );
+          }
           return parts ? (
             <Link key={d} to={`/${dayQuery(d)}`} className={cls} aria-label={d}>
               {label}

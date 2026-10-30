@@ -243,6 +243,7 @@ const en = {
   driveFinishing: "Connecting Google Drive…",
   driveCancelled: "Google Drive wasn't connected.",
   driveProblem: "Last try failed: {error}",
+  pickDay: "Pick a day",
 };
 
 type Key = keyof typeof en;
@@ -487,6 +488,7 @@ const pl: Record<Key, string> = {
   driveFinishing: "Łączę z Dyskiem Google…",
   driveCancelled: "Nie połączono Dysku Google.",
   driveProblem: "Ostatnia próba nie wyszła: {error}",
+  pickDay: "Wybierz dzień",
 };
 
 export const DICTIONARIES: Record<Language, Record<Key, string>> = { en, pl };

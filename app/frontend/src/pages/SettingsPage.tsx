@@ -65,6 +65,8 @@ export function SettingsPage() {
 
       <p className="footer-link">
         <a href="https://pusiaczkowo.pl">🐾 {t("home")}</a>
+        <br />
+        <span className="small">reps {__APP_VERSION__}</span>
       </p>
     </section>
   );
