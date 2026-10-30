@@ -23,6 +23,16 @@ aura-the-husky). Someone who already has a login just gets `reps`.
 
 Each person's data is keyed by their login's `sub`.
 
+## Offline
+
+reps is an installable app (PWA: `public/manifest.json`, `public/sw.js`). The
+service worker keeps the app itself; the app keeps your profile, exercises and
+all your sets in IndexedDB (`src/idb.ts`) and reads everything from there.
+Changes go into a sync queue (`src/sync.tsx`) that is sent in order when
+there's signal. Every queued call is safe to send twice (sets have ids made on
+the phone), so nothing doubles. New/renamed exercises, import and invites
+need a connection.
+
 ## Layout
 
 ```
@@ -32,6 +42,7 @@ app/frontend         React + Vite, dark and phone-first, EN/PL (src/i18n.tsx)
 terraform/bootstrap  state bucket + GitHub deploy roles (run once, by hand)
 terraform/envs/prod  the app: CloudFront, API Gateway, Lambda, DynamoDB
 tools/dev_server.py  fake backend for `make local`
+tools/make_icons.py  draws the app icons (PNG) into app/frontend/public/icons
 ```
 
 ## Run it

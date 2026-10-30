@@ -158,6 +158,15 @@ const en = {
   stats: "Stats",
   minPerKm: "min/km",
   logSets: "Log",
+  offlineWaiting: "Offline – {changes} waiting to sync",
+  offline: "Offline – changes are saved on this phone",
+  syncing: "Syncing {changes}…",
+  waiting: "{changes} waiting to sync",
+  syncFailed: "{changes} couldn't be saved:",
+  ok: "OK",
+  logoutPending: "{changes} haven't reached the server yet and would be lost. Log out anyway?",
+  needsSignal: "This needs a connection – try again with signal.",
+  retry: "Try now",
 };
 
 type Key = keyof typeof en;
@@ -317,6 +326,15 @@ const pl: Record<Key, string> = {
   stats: "Statystyki",
   minPerKm: "min/km",
   logSets: "Zapisz",
+  offlineWaiting: "Offline – czeka na wysłanie: {changes}",
+  offline: "Offline – zmiany zapisują się na telefonie",
+  syncing: "Wysyłam: {changes}…",
+  waiting: "Czeka na wysłanie: {changes}",
+  syncFailed: "Nie udało się zapisać: {changes}.",
+  ok: "OK",
+  logoutPending: "Nie dotarło jeszcze na serwer: {changes}. Przepadną po wylogowaniu. Wylogować mimo to?",
+  needsSignal: "To wymaga połączenia – spróbuj, gdy będzie zasięg.",
+  retry: "Wyślij teraz",
 };
 
 export const DICTIONARIES: Record<Language, Record<Key, string>> = { en, pl };
@@ -347,4 +365,12 @@ export function useLanguage(): Language {
 
 export function useT(): T {
   return translator(useContext(LanguageContext));
+}
+
+/** "1 change" / "3 changes"; Polish: 1 zmiana, 2–4 zmiany, 5+ zmian. */
+export function changesText(n: number, language: Language): string {
+  if (language === "en") return `${n} ${n === 1 ? "change" : "changes"}`;
+  const last = n % 10;
+  const teen = n % 100 >= 12 && n % 100 <= 14;
+  return `${n} ${n === 1 ? "zmiana" : last >= 2 && last <= 4 && !teen ? "zmiany" : "zmian"}`;
 }

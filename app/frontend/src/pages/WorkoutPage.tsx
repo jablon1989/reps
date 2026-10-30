@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { useApi } from "../api";
+import { useHistory } from "../history";
 import { addDays, formatDay, todayIso } from "../dates";
 import { useExercises } from "../exercises";
 import { exerciseName, formatSet } from "../format";
@@ -47,21 +47,12 @@ export function DateBar({ day, onChange }: { day: string; onChange: (day: string
 export function WorkoutPage() {
   const t = useT();
   const lang = useLanguage();
-  const api = useApi();
   const navigate = useNavigate();
   const { byId } = useExercises();
+  const history = useHistory();
   const [day, setDay] = useDay();
-  const [sets, setSets] = useState<WorkSet[]>();
-  const [error, setError] = useState<string>();
-
-  useEffect(() => {
-    setSets(undefined);
-    setError(undefined);
-    api
-      .sets(day)
-      .then(setSets)
-      .catch((e: Error) => setError(e.message));
-  }, [api, day]);
+  const sets = useMemo(() => history.sets?.filter((s) => s.date === day), [history.sets, day]);
+  const error = sets ? undefined : history.error;
 
   const groups: { exerciseId: string; sets: WorkSet[] }[] = [];
   for (const s of sets ?? []) {

@@ -1160,3 +1160,25 @@ p {
   place-items: center;
   flex: none;
 }
+
+/* ---------- sync ---------- */
+.sync-bar {
+  position: sticky;
+  top: calc(env(safe-area-inset-top) + 0.4rem);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+  padding: 0.45rem 0.6rem 0.45rem 0.9rem;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.sync-bar.error-bar {
+  border-color: color-mix(in srgb, var(--danger) 50%, var(--line));
+  color: var(--danger);
+}

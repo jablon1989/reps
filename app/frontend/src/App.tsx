@@ -2,6 +2,7 @@ import { NavLink, Route, Routes, useLocation } from "react-router";
 import { ApiError } from "./api";
 import { LanguageProvider, browserLanguage, useT } from "./i18n";
 import { MeProvider, type MeStatus } from "./me";
+import { SyncBar } from "./components/SyncBar";
 import { TimerBar } from "./components/TimerBar";
 import { ExercisesProvider } from "./exercises";
 import { HistoryProvider } from "./history";
@@ -16,6 +17,7 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { WorkoutPage } from "./pages/WorkoutPage";
 import { TimerProvider } from "./timer";
 import { useSession } from "./session";
+import { SyncProvider, useSync } from "./sync";
 
 export function App() {
   const session = useSession();
@@ -26,15 +28,17 @@ export function App() {
     );
   }
   return (
-    <MeProvider fallback={(s) => <NotReady status={s} />}>
-      <ExercisesProvider>
-        <HistoryProvider>
-          <TimerProvider>
-            <Shell />
-          </TimerProvider>
-        </HistoryProvider>
-      </ExercisesProvider>
-    </MeProvider>
+    <SyncProvider>
+      <MeProvider fallback={(s) => <NotReady status={s} />}>
+        <ExercisesProvider>
+          <HistoryProvider>
+            <TimerProvider>
+              <Shell />
+            </TimerProvider>
+          </HistoryProvider>
+        </ExercisesProvider>
+      </MeProvider>
+    </SyncProvider>
   );
 }
 
@@ -44,7 +48,7 @@ function Loading() {
 
 function NotReady({ status }: { status: MeStatus }) {
   const t = useT();
-  const { logout } = useSession();
+  const { logoutAndForget: logout } = useSync();
   if (status.kind !== "error") return <Loading />;
   const noAccess = status.error instanceof ApiError && status.error.status === 403;
   return (
@@ -79,6 +83,7 @@ function Shell() {
   return (
     <div className="app">
       <main className="main">
+        <SyncBar />
         <Routes>
           <Route path="/" element={<WorkoutPage />} />
           <Route path="/pick" element={<PickPage />} />

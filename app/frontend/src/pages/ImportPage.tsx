@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router";
-import { useApi } from "../api";
+import { errorText, useApi } from "../api";
 import { formatDay } from "../dates";
 import { useExercises } from "../exercises";
 import { useHistory } from "../history";
@@ -52,7 +52,7 @@ export function ImportPage() {
       const chosen = Object.fromEntries(preview.exercises.map((x) => [x.name, x.category]));
       setStep({ kind: "preview", preview, categories: chosen });
     } catch (err) {
-      setStep({ kind: "pick", error: (err as Error).message });
+      setStep({ kind: "pick", error: errorText(err, t) });
     }
   }
 
@@ -73,7 +73,7 @@ export function ImportPage() {
       await Promise.all([reload(), history.reload()]);
       setStep({ kind: "done", result });
     } catch (err) {
-      setStep({ kind: "preview", preview, categories: chosen, error: (err as Error).message });
+      setStep({ kind: "preview", preview, categories: chosen, error: errorText(err, t) });
     }
   }
 
@@ -84,7 +84,7 @@ export function ImportPage() {
       await history.reload();
       setUndoMessage(t("importUndone", { n: fmt(deleted) }));
     } catch (err) {
-      setUndoMessage((err as Error).message);
+      setUndoMessage(errorText(err, t));
     }
   }
 

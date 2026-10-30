@@ -69,7 +69,7 @@ jobs:
           aws s3 sync dist "s3://${{ steps.tf.outputs.bucket }}" --delete --exclude "assets/*" --exclude "config.json" --cache-control "no-cache"
 
       - name: Refresh CloudFront
-        run: aws cloudfront create-invalidation --distribution-id "${{ steps.tf.outputs.distribution }}" --paths "/index.html" "/"
+        run: aws cloudfront create-invalidation --distribution-id "${{ steps.tf.outputs.distribution }}" --paths "/index.html" "/" "/sw.js" "/manifest.json"
 
       - name: Summary
         run: echo "### Deployed to ${{ steps.tf.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"

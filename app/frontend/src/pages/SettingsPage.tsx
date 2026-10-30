@@ -1,15 +1,23 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router";
-import { useApi } from "../api";
-import { LANGUAGES, LANGUAGE_NAMES, useT } from "../i18n";
+import { errorText, useApi } from "../api";
+import { LANGUAGES, LANGUAGE_NAMES, changesText, useT } from "../i18n";
 import { useMe } from "../me";
-import { useSession } from "../session";
+import { useSync } from "../sync";
 import type { Person } from "../types";
 
 export function SettingsPage() {
   const t = useT();
   const { me, setLanguage } = useMe();
-  const { logout } = useSession();
+  const sync = useSync();
+  const logout = () => {
+    if (
+      sync.pending &&
+      !window.confirm(t("logoutPending", { changes: changesText(sync.pending, me.settings.language) }))
+    )
+      return;
+    sync.logoutAndForget();
+  };
 
   return (
     <section className="page">
@@ -87,7 +95,7 @@ function People() {
       setEmail("");
       load();
     } catch (err) {
-      setMessage({ ok: false, text: (err as Error).message });
+      setMessage({ ok: false, text: errorText(err, t) });
     } finally {
       setBusy(false);
     }

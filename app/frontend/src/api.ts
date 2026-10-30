@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import type { T } from "./i18n";
 import { useSession } from "./session";
 import type {
   Category,
@@ -10,10 +11,21 @@ import type {
   ImportSet,
   Me,
   Person,
-  Session,
   Settings,
-  WorkSet,
 } from "./types";
+
+/** [id, date, at, exercise_id, weight, reps, distance, seconds, comment] (null = not set) */
+export type AllSetsRow = [
+  string,
+  string,
+  string,
+  string,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  string | null,
+];
 
 export class ApiError extends Error {
   constructor(
@@ -22,18 +34,41 @@ export class ApiError extends Error {
   ) {
     super(message);
   }
+
+  /** No answer at all: no signal, or the server can't be reached. */
+  get offline(): boolean {
+    return this.status === 0;
+  }
 }
 
-function createApi(token: string | undefined) {
+function createApi(getToken: () => string | undefined, refresh: () => Promise<string | undefined>) {
+  async function send(method: string, path: string, body: unknown, token: string | undefined): Promise<Response> {
+    try {
+      return await fetch(`/api${path}`, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token ?? ""}`,
+          ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+        },
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+      });
+    } catch {
+      throw new ApiError(0, "offline");
+    }
+  }
+
   async function call<T>(method: string, path: string, body?: unknown): Promise<T> {
-    const res = await fetch(`/api${path}`, {
-      method,
-      headers: {
-        Authorization: `Bearer ${token ?? ""}`,
-        ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
-      },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
+    let res = await send(method, path, body, getToken());
+    if (res.status === 401) {
+      // The hour-long token ran out: get a new one and try once more.
+      let fresh: string | undefined;
+      try {
+        fresh = await refresh();
+      } catch {
+        fresh = undefined;
+      }
+      if (fresh) res = await send(method, path, body, fresh);
+    }
     if (!res.ok) {
       let message = res.statusText;
       try {
@@ -47,6 +82,8 @@ function createApi(token: string | undefined) {
   }
 
   return {
+    /** Any call, e.g. one waiting in the sync queue. */
+    request: <T = unknown>(method: string, path: string, body?: unknown) => call<T>(method, path, body),
     me: () => call<Me>("GET", "/me"),
     saveSettings: (settings: Partial<Settings>) => call<Settings>("PUT", "/me/settings", settings),
     people: () => call<{ people: Person[] }>("GET", "/admin/people").then((r) => r.people),
@@ -57,20 +94,13 @@ function createApi(token: string | undefined) {
     createExercise: (input: ExerciseInput) => call<Exercise>("POST", "/exercises", input),
     updateExercise: (id: string, input: ExerciseInput) => call<Exercise>("PATCH", `/exercises/${id}`, input),
     deleteExercise: (id: string) => call<void>("DELETE", `/exercises/${id}`),
-    history: (id: string, before: string, sessions = 3) =>
-      call<{ sessions: Session[] }>("GET", `/exercises/${id}/history?before=${before}&sessions=${sessions}`).then(
-        (r) => r.sessions,
-      ),
 
     /** All your sets, compact rows, page by page. */
     allSets: (cursor?: string) =>
       call<{
-        sets: [string, string, string, string, number | null, number | null, number | null, number | null][];
+        sets: AllSetsRow[];
         next: string | null;
       }>("GET", `/sets/all${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`),
-    sets: (date: string) => call<{ sets: WorkSet[] }>("GET", `/sets?date=${date}`).then((r) => r.sets),
-    saveSet: (set: WorkSet) => call<WorkSet>("PUT", `/sets/${set.id}`, set),
-    deleteSet: (set: WorkSet) => call<void>("DELETE", `/sets/${set.id}?date=${set.date}`),
 
     importParse: (filename: string, data: string) => call<ImportPreview>("POST", "/import/parse", { filename, data }),
     importExercises: (exercises: ImportExercise[]) =>
@@ -82,7 +112,22 @@ function createApi(token: string | undefined) {
 
 export type Api = ReturnType<typeof createApi>;
 
+/** The API, with the current token. Stays the same object when the token is refreshed. */
 export function useApi(): Api {
-  const { token } = useSession();
-  return useMemo(() => createApi(token), [token]);
+  const session = useSession();
+  const ref = useRef(session);
+  ref.current = session;
+  return useMemo(
+    () =>
+      createApi(
+        () => ref.current.token,
+        () => ref.current.refresh(),
+      ),
+    [],
+  );
+}
+
+/** An error for people: "needs a connection" instead of "offline". */
+export function errorText(err: unknown, t: T): string {
+  return err instanceof ApiError && err.offline ? t("needsSignal") : (err as Error).message;
 }

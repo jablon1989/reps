@@ -166,10 +166,11 @@ def test_all_sets_in_pages(aws, monkeypatch):
     status, page = call(aws, "GET /api/sets/all")
     assert status == 200
     assert [r[1] for r in page["sets"]] == ["2026-10-20", "2026-10-21", "2026-10-22"]
-    assert page["sets"][0] == ["set-0000", "2026-10-20", "2026-10-20T18:00:00", "lat-pulldown", 50, 10, None, None]
+    first = ["set-0000", "2026-10-20", "2026-10-20T18:00:00", "lat-pulldown", 50, 10, None, None, None]
+    assert page["sets"][0] == first
     status, page = call(aws, "GET /api/sets/all", query={"cursor": page["next"]})
     assert [r[1] for r in page["sets"]] == ["2026-10-23", "2026-10-24"]
-    assert page["sets"][1][6:] == [5, 1500]
+    assert page["sets"][1][6:] == [5, 1500, None]
     assert page["next"] is None
     assert call(aws, "GET /api/sets/all", MEMBER)[1] == {"sets": [], "next": None}
     assert call(aws, "GET /api/sets/all", query={"cursor": "bm9wZQ=="})[0] == 400

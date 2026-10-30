@@ -1,3 +1,4 @@
+import { errorText } from "../api";
 import { useState, type FormEvent } from "react";
 import { useExercises } from "../exercises";
 import { useLanguage, useT } from "../i18n";
@@ -29,7 +30,7 @@ export function ExerciseForm({ exercise, onClose }: { exercise?: Exercise; onClo
       const input = { en: en.trim(), pl: pl.trim(), category, type };
       onClose(exercise ? await update(exercise.id, input) : await create(input));
     } catch (err) {
-      setError((err as Error).message);
+      setError(errorText(err, t));
       setBusy(false);
     }
   }

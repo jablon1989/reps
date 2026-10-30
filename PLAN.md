@@ -75,7 +75,7 @@ DynamoDB, Cognito, Terraform, GitHub Actions. The frontend is React + Vite.
    - volume per body part
    - calendar and streaks
    - home screen
-5. **Offline**
+5. **Offline** ✅
    - PWA install
    - local queue and sync
 6. **Routines, body weight and measurements, goals, comments**

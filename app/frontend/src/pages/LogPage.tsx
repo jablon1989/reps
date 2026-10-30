@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { useApi } from "../api";
 import { formatDay, todayIso } from "../dates";
 import { useExercises } from "../exercises";
 import { useHistory } from "../history";
@@ -29,26 +28,29 @@ export function LogPage() {
 function Logger({ ex }: { ex: Exercise }) {
   const t = useT();
   const lang = useLanguage();
-  const api = useApi();
   const navigate = useNavigate();
   const timer = useTimer();
   const { update } = useExercises();
   const history = useHistory();
   const [day, setDay] = useDay();
-  const [daySets, setDaySets] = useState<WorkSet[]>([]);
-  const [last, setLast] = useState<Session | null>();
   const [selected, setSelected] = useState<string>();
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
   const [distance, setDistance] = useState("");
   const [time, setTime] = useState("");
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const cardio = ex.type === "cardio";
   const name = exerciseName(ex, lang);
 
-  const sets = useMemo(() => daySets.filter((s) => s.exercise_id === ex.id), [daySets, ex.id]);
+  // Everything comes from the sets kept on the phone: works the same without signal.
   const all = history.forExercise(ex.id);
+  const sets = useMemo(() => all.filter((s) => s.date === day), [all, day]);
+  const last = useMemo<Session | null>(() => {
+    const before = all.filter((s) => s.date < day);
+    if (!before.length) return null;
+    const date = before[before.length - 1].date;
+    return { date, sets: before.filter((s) => s.date === date) };
+  }, [all, day]);
   const prs = useMemo(() => (isLift(ex) ? prSetIds(all) : new Set<string>()), [all, ex]);
 
   function fill(s: WorkSet | undefined) {
@@ -58,25 +60,15 @@ function Logger({ ex }: { ex: Exercise }) {
     setTime(s?.seconds ? formatDuration(s.seconds) : "");
   }
 
+  // Start from today's last set, else from last time's first set (once the sets are there).
+  const ready = history.sets !== undefined;
   useEffect(() => {
-    let stale = false;
+    if (!ready) return;
     setSelected(undefined);
     setError(undefined);
-    Promise.all([api.sets(day), api.history(ex.id, day, 1)])
-      .then(([all, history]) => {
-        if (stale) return;
-        const mine = all.filter((s) => s.exercise_id === ex.id);
-        setDaySets(all);
-        setLast(history[0] ?? null);
-        // Start from today's last set, else from last time's first set.
-        fill(mine[mine.length - 1] ?? history[0]?.sets[0]);
-      })
-      .catch((e: Error) => !stale && setError(e.message));
-    return () => {
-      stale = true;
-    };
+    fill(sets[sets.length - 1] ?? last?.sets[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api, day, ex.id]);
+  }, [ready, day, ex.id]);
 
   function step(setter: (v: string) => void, value: string, delta: number, min: number) {
     const n = parseNumber(value) ?? 0;
@@ -113,40 +105,21 @@ function Logger({ ex }: { ex: Exercise }) {
     return set;
   }
 
-  async function save() {
+  // Saved on the phone at once; the sync queue sends it to the server.
+  function save() {
     const set = build();
     if (!set) return;
-    setBusy(true);
     setError(undefined);
-    try {
-      const saved = await api.saveSet(set);
-      history.upsert(saved);
-      setDaySets((all) =>
-        all.some((s) => s.id === saved.id) ? all.map((s) => (s.id === saved.id ? saved : s)) : [...all, saved],
-      );
-      if (!selected && ex.rest > 0) timer.start(ex.rest, name);
-      setSelected(undefined);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
+    history.saveSet(set);
+    if (!selected && ex.rest > 0) timer.start(ex.rest, name);
+    setSelected(undefined);
   }
 
-  async function remove() {
+  function remove() {
     const set = sets.find((s) => s.id === selected);
     if (!set) return;
-    setBusy(true);
-    try {
-      await api.deleteSet(set);
-      history.remove(set.id);
-      setDaySets((all) => all.filter((s) => s.id !== set.id));
-      setSelected(undefined);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
+    history.deleteSet(set);
+    setSelected(undefined);
   }
 
   function select(s: WorkSet) {
@@ -205,15 +178,15 @@ function Logger({ ex }: { ex: Exercise }) {
         )}
         {error && <p className="error small">{error}</p>}
         <div className="entry-actions">
-          <button className="btn primary big" onClick={save} disabled={busy}>
+          <button className="btn primary big" onClick={save}>
             {selected ? t("update") : t("save")}
           </button>
           {selected ? (
-            <button className="btn danger big" onClick={remove} disabled={busy}>
+            <button className="btn danger big" onClick={remove}>
               {t("delete")}
             </button>
           ) : (
-            <button className="btn big" onClick={() => fill(undefined)} disabled={busy}>
+            <button className="btn big" onClick={() => fill(undefined)}>
               {t("clear")}
             </button>
           )}
@@ -243,7 +216,7 @@ function Logger({ ex }: { ex: Exercise }) {
           📈 {t("stats")} →
         </Link>
       </div>
-      {last === undefined ? null : last ? (
+      {last ? (
         <div className="card">
           <p className="muted small history-date">{formatDay(last.date, lang, true)}</p>
           <ol className="set-list">

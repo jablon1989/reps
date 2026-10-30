@@ -7,7 +7,11 @@ export interface Session {
   loading: boolean;
   error?: string;
   player?: string;
+  /** Stable id of the login (Cognito `sub`): data kept on the phone is stored under it. */
+  userKey?: string;
   token?: string;
+  /** Get a fresh token (the ID token lasts an hour); resolves to the new one. */
+  refresh: () => Promise<string | undefined>;
   /** Local dev only: the players you can switch between. */
   devPlayers?: string[];
   login: (player?: string) => void;
@@ -30,8 +34,12 @@ export function CognitoSession({ config, children }: { config: AppConfig; childr
     return {
       loading: auth.isLoading || !!auth.activeNavigator,
       error: auth.error?.message,
-      player: auth.isAuthenticated ? String(profile?.name ?? profile?.email ?? "") : undefined,
+      // An expired login still counts: offline, the app keeps working and syncs
+      // after the token is refreshed (online, the API asks for that itself).
+      player: auth.user ? String(profile?.name ?? profile?.email ?? "") : undefined,
+      userKey: profile?.sub,
       token: auth.user?.id_token,
+      refresh: async () => (await auth.signinSilent())?.id_token,
       login: () => auth.signinRedirect({ state: { returnTo: window.location.pathname + window.location.search } }),
       logout: async () => {
         await auth.removeUser();
@@ -77,7 +85,9 @@ export function DevSession({ players, children }: { players: string[]; children:
     () => ({
       loading: false,
       player,
+      userKey: player ? `dev-${player.toLowerCase()}` : undefined,
       token: player ? `dev:${encodeURIComponent(player)}` : undefined,
+      refresh: async () => (player ? `dev:${encodeURIComponent(player)}` : undefined),
       devPlayers: players,
       login,
       logout,

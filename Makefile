@@ -56,7 +56,7 @@ deploy-frontend: fe-build ## Upload the app to S3 and refresh CloudFront
 	$(eval DIST := $(shell terraform -chdir=$(TF_DIR) output -raw distribution_id))
 	aws s3 sync $(FE_DIR)/dist/assets s3://$(BUCKET)/assets --cache-control "public,max-age=31536000,immutable"
 	aws s3 sync $(FE_DIR)/dist s3://$(BUCKET) --delete --exclude "assets/*" --exclude "config.json" --cache-control "no-cache"
-	aws cloudfront create-invalidation --distribution-id $(DIST) --paths "/index.html" "/" > /dev/null
+	aws cloudfront create-invalidation --distribution-id $(DIST) --paths "/index.html" "/" "/sw.js" "/manifest.json" > /dev/null
 	@echo "Deployed: $$(terraform -chdir=$(TF_DIR) output -raw site_url)"
 
 deploy: tf-plan tf-apply deploy-frontend ## Infra + app in one go

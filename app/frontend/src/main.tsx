@@ -34,6 +34,16 @@ function WithSession({ config, children }: { config: AppConfig; children: ReactN
   );
 }
 
+// The app works offline once installed (public/sw.js). Only in real builds:
+// in `npm run dev` a service worker would serve stale code.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      /* no offline mode, the app still works */
+    });
+  });
+}
+
 loadConfig()
   .then((config) => {
     root.render(

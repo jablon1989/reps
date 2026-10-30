@@ -323,14 +323,14 @@ def _sessions(days: dict[str, list[dict]]) -> list[dict]:
 # ---------------------------------------------------------------------------
 # Everything at once (stats are worked out on the phone)
 # ---------------------------------------------------------------------------
-ALL_FIELDS = ("set_id", "date", "at", "exercise_id", "weight", "reps", "distance", "seconds")
+ALL_FIELDS = ("set_id", "date", "at", "exercise_id", "weight", "reps", "distance", "seconds", "comment")
 ALL_PAGE = 5000
 
 
 def all_sets(table, pk: str, cursor: str | None) -> dict:
     """Your sets in date order, as compact rows, up to ALL_PAGE per call.
 
-    Row: [id, date, at, exercise_id, weight, reps, distance, seconds] (null = not set).
+    Row: [id, date, at, exercise_id, weight, reps, distance, seconds, comment] (null = not set).
     """
     import base64
 
