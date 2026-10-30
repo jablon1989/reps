@@ -25,6 +25,16 @@ Each person's data is keyed by their login's `sub`: exercises (`EX#`, `PREF#`),
 sets (`SET#`), and small documents (`DOC#<kind>#<id>`: routines, body
 measurements, goals, day notes, the routine started on a day).
 
+## Shared stats ("Us")
+
+Off by default; each person turns on "Share my stats" (Settings, or Stats →
+Us). The log stays private: the phone works out a summary from its own sets
+(`src/shared.ts`: last 12 weeks, this month's body parts, PRs of the last 30
+days, best estimated 1RM per lift) and sends it a few seconds after the sets
+change (`PUT /api/shared/me`, stored at `SHARED / USER#<sub>`). Only people who
+share can see the others (`GET /api/shared`); turning it off removes your
+summary at once.
+
 ## Offline
 
 reps is an installable app (PWA: `public/manifest.json`, `public/sw.js`). The

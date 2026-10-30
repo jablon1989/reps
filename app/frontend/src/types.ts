@@ -2,6 +2,8 @@ import type { Language } from "./i18n";
 
 export interface Settings {
   language: Language;
+  /** on the shared "us" page */
+  share?: boolean;
 }
 
 export interface Me {

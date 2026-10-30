@@ -8,6 +8,7 @@ import type { Me } from "./types";
 interface MeState {
   me: Me;
   setLanguage: (language: Language) => void;
+  setShare: (share: boolean) => void;
 }
 
 const MeContext = createContext<MeState | null>(null);
@@ -64,24 +65,26 @@ export function MeProvider({ fallback, children }: { fallback: (s: Status) => Re
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, key]);
 
-  const setLanguage = useCallback(
-    (language: Language) => {
+  const save = useCallback(
+    (change: Partial<Me["settings"]>) => {
       setStatus((s) => {
         if (s.kind !== "ready") return s;
-        const me = { ...s.me, settings: { ...s.me.settings, language } };
+        const me = { ...s.me, settings: { ...s.me.settings, ...change } };
         idbSet(key, me);
         return { ...s, me };
       });
-      sync.queue({ method: "PUT", path: "/me/settings", body: { language } });
+      sync.queue({ method: "PUT", path: "/me/settings", body: change });
     },
     [key, sync],
   );
+  const setLanguage = useCallback((language: Language) => save({ language }), [save]);
+  const setShare = useCallback((share: boolean) => save({ share }), [save]);
 
   if (status.kind !== "ready") {
     return <LanguageProvider language={browserLanguage()}>{fallback(status)}</LanguageProvider>;
   }
   return (
-    <MeContext.Provider value={{ me: status.me, setLanguage }}>
+    <MeContext.Provider value={{ me: status.me, setLanguage, setShare }}>
       <LanguageProvider language={status.me.settings.language}>{children}</LanguageProvider>
     </MeContext.Provider>
   );

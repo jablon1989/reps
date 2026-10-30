@@ -246,3 +246,93 @@ export function Tile(props: { label: string; value: ReactNode; note?: ReactNode 
     </div>
   );
 }
+
+/** Columns side by side, one per series (person), each series in its own colour class. */
+export function GroupedColumns(props: {
+  groups: { key: string; label: string; title: string; values: number[] }[];
+  seriesClass: (i: number) => string;
+  ariaLabel: string;
+}) {
+  const [ref, width] = useWidth<HTMLDivElement>();
+  const height = 150;
+  const pad = { top: 8, bottom: 22 };
+  const max = Math.max(1, ...props.groups.flatMap((g) => g.values));
+  const n = Math.max(1, ...props.groups.map((g) => g.values.length));
+  const slot = props.groups.length ? width / props.groups.length : 0;
+  const bw = Math.max(2, Math.min(10, (slot * 0.75) / n - 1));
+  const h = height - pad.top - pad.bottom;
+  return (
+    <div ref={ref} className="chart" style={{ height }}>
+      {width > 0 && (
+        <svg width={width} height={height} role="img" aria-label={props.ariaLabel}>
+          <line className="grid" x1={0} x2={width} y1={pad.top + h} y2={pad.top + h} />
+          {props.groups.map((g, i) => {
+            const left = slot * i + slot / 2 - ((bw + 1) * g.values.length) / 2;
+            return (
+              <g key={g.key}>
+                <title>{g.title}</title>
+                {g.values.map((v, j) => {
+                  const bh = (v / max) * h;
+                  const r = Math.min(2, bh);
+                  const x0 = left + j * (bw + 1);
+                  return (
+                    v > 0 && (
+                      <path
+                        key={j}
+                        className={props.seriesClass(j)}
+                        d={`M${x0},${pad.top + h}V${pad.top + h - bh + r}q0,-${r} ${r},-${r}H${x0 + bw - r}q${r},0 ${r},${r}V${pad.top + h}Z`}
+                        style={{ fill: "var(--cat)" }}
+                      />
+                    )
+                  );
+                })}
+                {g.label && (
+                  <text
+                    className="tick"
+                    x={i === 0 ? slot * i + 2 : i === props.groups.length - 1 ? slot * (i + 1) - 2 : slot * i + slot / 2}
+                    y={height - 6}
+                    textAnchor={i === 0 ? "start" : i === props.groups.length - 1 ? "end" : "middle"}
+                  >
+                    {g.label}
+                  </text>
+                )}
+                <rect x={slot * i} y={0} width={slot} height={height} fill="transparent" />
+              </g>
+            );
+          })}
+        </svg>
+      )}
+    </div>
+  );
+}
+
+/**
+ * One row per thing compared (a lift, a body part), one bar per person under it,
+ * with the value as text – the person's name sits in the legend and the title.
+ */
+export function CompareRows(props: {
+  rows: { key: string; label: ReactNode; className?: string; values: (number | undefined)[]; texts: string[] }[];
+  seriesClass: (i: number) => string;
+  names: string[];
+}) {
+  return (
+    <ul className="compare">
+      {props.rows.map((r) => {
+        const max = Math.max(1, ...r.values.map((v) => v ?? 0));
+        return (
+          <li key={r.key} className={r.className}>
+            <span className="compare-label">{r.label}</span>
+            {r.values.map((v, i) => (
+              <span key={i} className={`compare-line ${props.seriesClass(i)}`} title={props.names[i]}>
+                <span className="bar-track">
+                  {!!v && <span className="bar-fill" style={{ width: `${(100 * v) / max}%` }} />}
+                </span>
+                <span className="bar-value">{r.texts[i]}</span>
+              </span>
+            ))}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}

@@ -82,7 +82,9 @@ DynamoDB, Cognito, Terraform, GitHub Actions. The frontend is React + Vite.
 7. **Google Drive export** ✅
    - one-time connect (OAuth)
    - weekly scheduled export and "Export now"
-8. **Shared "us" stats page**
+8. **Shared "us" stats page** ✅
+   - opt-in sharing, summary sent from the phone
+   - this week, workouts/kg per week, head to head on common lifts, PRs, body parts, all time
 
 ## Needed from you later
 

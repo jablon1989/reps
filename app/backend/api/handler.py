@@ -8,6 +8,7 @@ shared pusiaczkowo.pl login). On top of that, reps only lets in logins in the
 One DynamoDB table, `pk` + `sk`:
   USER#<sub> / SETTINGS   – language, …
   USER#<sub> / EX#, PREF#, SET#  – exercises and sets (workouts.py)
+  SHARED     / USER#<sub>      – stats summary for the "us" page (shared.py)
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ import docs
 import drive
 import importer
 import people
+import shared
 import workouts
 
 log = logging.getLogger()
@@ -132,7 +134,7 @@ def require_admin(user: User) -> None:
 # ---------------------------------------------------------------------------
 def load_settings(user: User) -> dict:
     item = table.get_item(Key={"pk": user.pk, "sk": "SETTINGS"}).get("Item") or {}
-    return {"language": item.get("language", "en")}
+    return {"language": item.get("language", "en"), "share": bool(item.get("share", False))}
 
 
 def get_me(event: dict, _: dict) -> dict:
@@ -157,6 +159,13 @@ def put_settings(event: dict, _: dict) -> dict:
         if body["language"] not in LANGUAGES:
             raise ApiError(400, f"language must be one of {', '.join(LANGUAGES)}")
         settings["language"] = body["language"]
+    if "share" in body:
+        if not isinstance(body["share"], bool):
+            raise ApiError(400, "share must be true or false")
+        settings["share"] = body["share"]
+        # Turning it off takes your summary off the page straight away.
+        if not body["share"]:
+            shared.delete(table, user.sub)
     table.put_item(Item={"pk": user.pk, "sk": "SETTINGS", **settings, "updated_at": now_iso()})
     return response(200, settings)
 
@@ -258,6 +267,23 @@ def delete_doc(event: dict, path: dict) -> dict:
     user = current_user(event)
     docs.delete(table, user.pk, path.get("kind", ""), path.get("docId", ""))
     return response(204)
+
+
+# ---------------------------------------------------------------------------
+# The shared "us" page (shared.py)
+# ---------------------------------------------------------------------------
+def get_shared(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    if not load_settings(user)["share"]:
+        return response(200, {"sharing": False, "people": []})
+    return response(200, {"sharing": True, "people": shared.list_all(table, user.sub)})
+
+
+def put_shared(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    if not load_settings(user)["share"]:
+        raise ApiError(409, "Sharing is off")
+    return response(200, shared.put(table, user.sub, user.name, parse_body(event), now_iso()))
 
 
 # ---------------------------------------------------------------------------
@@ -441,6 +467,8 @@ ROUTES: dict[str, Callable[[dict, dict], dict]] = {
     "PUT /api/docs/{kind}/{docId}": put_doc,
     "DELETE /api/docs/{kind}/{docId}": delete_doc,
     "DELETE /api/import": import_undo,
+    "GET /api/shared": get_shared,
+    "PUT /api/shared/me": put_shared,
 }
 
 

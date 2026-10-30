@@ -26,7 +26,7 @@ def test_me(aws):
         "email": "b@example.com",
         "admin": True,
         "friend": False,
-        "settings": {"language": "en"},
+        "settings": {"language": "en", "share": False},
     }
     assert call(aws, "GET /api/me", MEMBER)[1]["admin"] is False
 
@@ -42,9 +42,9 @@ def test_login_without_reps_group_is_turned_away(aws):
 
 
 def test_language_is_saved_per_person(aws):
-    assert call(aws, "PUT /api/me/settings", body={"language": "pl"}) == (200, {"language": "pl"})
-    assert call(aws, "GET /api/me")[1]["settings"] == {"language": "pl"}
-    assert call(aws, "GET /api/me", MEMBER)[1]["settings"] == {"language": "en"}
+    assert call(aws, "PUT /api/me/settings", body={"language": "pl"}) == (200, {"language": "pl", "share": False})
+    assert call(aws, "GET /api/me")[1]["settings"] == {"language": "pl", "share": False}
+    assert call(aws, "GET /api/me", MEMBER)[1]["settings"] == {"language": "en", "share": False}
     assert call(aws, "PUT /api/me/settings", body={"language": "de"})[0] == 400
 
 

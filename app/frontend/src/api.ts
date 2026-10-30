@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import type { T } from "./i18n";
 import { useSession } from "./session";
+import type { SharedPerson, SharedSummary } from "./shared";
 import type {
   Category,
   Docs,
@@ -117,6 +118,8 @@ function createApi(getToken: () => string | undefined, refresh: () => Promise<st
       call<DriveStatus>("POST", "/drive/callback", { code, state, origin: window.location.origin }),
     driveExport: () => call<DriveStatus>("POST", "/drive/export"),
     driveDisconnect: () => call<void>("DELETE", "/drive"),
+    shared: () => call<{ sharing: boolean; people: SharedPerson[] }>("GET", "/shared"),
+    putShared: (summary: SharedSummary) => call<SharedPerson>("PUT", "/shared/me", summary),
     importUndo: () => call<{ deleted: number }>("DELETE", "/import"),
   };
 }

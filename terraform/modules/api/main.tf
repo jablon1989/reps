@@ -32,6 +32,8 @@ locals {
     "POST /api/drive/export",
     "DELETE /api/drive",
     "DELETE /api/import",
+    "GET /api/shared",
+    "PUT /api/shared/me",
   ]
 }
 

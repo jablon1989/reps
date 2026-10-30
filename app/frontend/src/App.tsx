@@ -9,6 +9,8 @@ import { ExercisesProvider } from "./exercises";
 import { HistoryProvider } from "./history";
 import { ExerciseStatsPage } from "./pages/ExerciseStatsPage";
 import { StatsPage } from "./pages/StatsPage";
+import { UsPage } from "./pages/UsPage";
+import { useSharePublisher } from "./sharePublisher";
 import { BodyPage } from "./pages/BodyPage";
 import { DriveCallbackPage } from "./pages/DriveCallbackPage";
 import { ExercisesPage } from "./pages/ExercisesPage";
@@ -87,6 +89,7 @@ const TABS = [
 function Shell() {
   const t = useT();
   const { pathname } = useLocation();
+  useSharePublisher();
   return (
     <div className="app">
       <main className="main">
@@ -97,6 +100,7 @@ function Shell() {
           <Route path="/log/:exerciseId" element={<LogPage />} />
           <Route path="/exercises" element={<ExercisesPage />} />
           <Route path="/stats" element={<StatsPage />} />
+          <Route path="/stats/us" element={<UsPage />} />
           <Route path="/stats/:exerciseId" element={<ExerciseStatsPage />} />
           <Route path="/routines" element={<RoutinesPage />} />
           <Route path="/body" element={<BodyPage />} />

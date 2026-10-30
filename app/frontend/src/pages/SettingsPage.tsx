@@ -9,7 +9,7 @@ import type { Person } from "../types";
 
 export function SettingsPage() {
   const t = useT();
-  const { me, setLanguage } = useMe();
+  const { me, setLanguage, setShare } = useMe();
   const sync = useSync();
   const logout = () => {
     if (
@@ -37,6 +37,18 @@ export function SettingsPage() {
             {LANGUAGE_NAMES[lang]}
           </button>
         ))}
+      </div>
+
+      <h2>{t("shareTitle")}</h2>
+      <div className="card share-setting">
+        <p className="muted small">{t("shareIntro")}</p>
+        <label className="switch-row">
+          <input type="checkbox" checked={!!me.settings.share} onChange={(e) => setShare(e.target.checked)} />
+          <span>
+            <strong>{t("shareStart")}</strong>
+            <span className="muted small">{me.settings.share ? t("shareOnNote") : t("shareOffNote")}</span>
+          </span>
+        </label>
       </div>
 
       <h2>{t("importTitle")}</h2>

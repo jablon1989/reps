@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { Calendar } from "../components/Calendar";
+import { StatsSwitch } from "./UsPage";
 import { Bars, Columns, Tile } from "../components/charts";
 import { useDocs } from "../docs";
 import { addDays, formatDay, todayIso } from "../dates";
@@ -81,7 +82,7 @@ export function StatsPage() {
 
   return (
     <section className="page stats">
-      <h1>{t("tabStats")}</h1>
+      <StatsSwitch />
       {error && <p className="error">{error}</p>}
       {!s && !error && <p className="muted">{t("statsLoading")}</p>}
       {s && s.days.length === 0 && <p className="muted empty">{t("statsEmpty")}</p>}
