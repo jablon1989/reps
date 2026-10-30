@@ -35,6 +35,12 @@ change (`PUT /api/shared/me`, stored at `SHARED / USER#<sub>`). Only people who
 share can see the others (`GET /api/shared`); turning it off removes your
 summary at once.
 
+High-fives: 🙌 on someone's PR or week (`POST /api/shared/high-fives` with
+`{to, key, on}`, stored at `FIVES#<sub> / <key>#<giver id>`). People are told
+apart by an id made from their login, not the login itself. When you open the
+app, a note says who high-fived you since you last looked
+(`GET /api/shared/high-fives`).
+
 ## Offline
 
 reps is an installable app (PWA: `public/manifest.json`, `public/sw.js`). The

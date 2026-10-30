@@ -34,6 +34,8 @@ locals {
     "DELETE /api/import",
     "GET /api/shared",
     "PUT /api/shared/me",
+    "GET /api/shared/high-fives",
+    "POST /api/shared/high-fives",
   ]
 }
 

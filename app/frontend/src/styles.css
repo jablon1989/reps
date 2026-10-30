@@ -1183,6 +1183,20 @@ p {
   color: var(--danger);
 }
 
+.five-bar {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.five-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex: none;
+}
+.five-more {
+  font-weight: 500;
+  opacity: 0.8;
+}
+
 /* ---------- routines, notes, body, goals ---------- */
 .routines {
   list-style: none;
@@ -1618,4 +1632,83 @@ p {
 }
 .updated {
   margin-top: 1.4rem;
+}
+
+/* ---------- high-fives on the "us" page ---------- */
+.five {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font: inherit;
+  font-size: 0.95rem;
+  min-height: 36px;
+  min-width: 44px;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  filter: grayscale(0.6);
+  transition:
+    transform 0.15s,
+    filter 0.15s;
+}
+.five.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  filter: none;
+  animation: five-pop 0.3s ease-out;
+}
+.five:active {
+  transform: scale(0.92);
+}
+.five-n {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.five.got {
+  cursor: default;
+  min-height: 0;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  filter: none;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+@keyframes five-pop {
+  50% {
+    transform: scale(1.2) rotate(-8deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .five.on {
+    animation: none;
+  }
+}
+.week-fives {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+}
+.week-fives > .muted {
+  flex-basis: 100%;
+}
+.week-five {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+.week-five .cat-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cat);
 }

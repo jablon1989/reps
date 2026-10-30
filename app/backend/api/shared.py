@@ -7,11 +7,18 @@ person. Only people who share can see the others.
 
   USER#<sub> / SETTINGS  – `share: true`
   SHARED     / USER#<sub> – the summary (JSON text, so floats stay floats)
+  FIVES#<sub> / <key>#<giver id> – a high-five someone gave you for a PR or a week
+
+People are told apart on the page by an id made from their login (not the
+login itself). A high-five's key says what it's for: `pr:<exercise>:<date>:<kg>:<reps>`
+or `week:<monday>`, so the phone that gets it can say "your bench PR".
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 from datetime import date
 
 from boto3.dynamodb.conditions import Key
@@ -19,6 +26,9 @@ from boto3.dynamodb.conditions import Key
 from workouts import Invalid
 
 PK = "SHARED"
+FIVES = "FIVES#"
+FIVE_KEY = re.compile(r"^(pr:[a-z0-9-]{1,80}:\d{4}-\d{2}-\d{2}:\d{1,4}(\.\d{1,3})?:\d{1,4}|week:\d{4}-\d{2}-\d{2})$")
+RECEIVED = 30
 # Each person picks the colour their stats are drawn in on the "us" page.
 COLORS = ("lime", "blue", "pink", "orange", "violet", "teal")
 MAX_BYTES = 60_000
@@ -138,26 +148,76 @@ def delete(table, sub: str) -> None:
     table.delete_item(Key={"pk": PK, "sk": f"USER#{sub}"})
 
 
-def list_all(table, me: str) -> list[dict]:
-    """Everyone's summary, yours first."""
+def person_id(sub: str) -> str:
+    return hashlib.sha256(f"reps-person-{sub}".encode()).hexdigest()[:16]
+
+
+def _query(table, pk: str) -> list[dict]:
     items: list[dict] = []
-    kwargs: dict = {"KeyConditionExpression": Key("pk").eq(PK)}
+    kwargs: dict = {"KeyConditionExpression": Key("pk").eq(pk)}
     while True:
         page = table.query(**kwargs)
         items.extend(page.get("Items", []))
         if "LastEvaluatedKey" not in page:
             break
         kwargs["ExclusiveStartKey"] = page["LastEvaluatedKey"]
+    return items
+
+
+def _fives(table, sub: str) -> list[dict]:
+    """High-fives someone got, newest first."""
+    out = [
+        {"key": i["key"], "from_id": i["from_id"], "from": i.get("from_name", ""), "at": i["created_at"]}
+        for i in _query(table, FIVES + sub)
+    ]
+    return sorted(out, key=lambda f: f["at"], reverse=True)
+
+
+def list_all(table, me: str) -> list[dict]:
+    """Everyone's summary and the high-fives they got, yours first."""
     people = []
-    for item in items:
+    for item in _query(table, PK):
         sub = item["sk"].removeprefix("USER#")
         people.append(
             {
                 **json.loads(item["data"]),
+                "id": person_id(sub),
                 "me": sub == me,
                 "name": item.get("name", ""),
                 "color": item.get("color"),
                 "updated_at": item.get("updated_at"),
+                "fives": _fives(table, sub),
             }
         )
     return sorted(people, key=lambda p: (not p["me"], p["name"].lower()))
+
+
+def received(table, me: str) -> list[dict]:
+    """Your latest high-fives (for the note when you open the app)."""
+    return _fives(table, me)[:RECEIVED]
+
+
+def high_five(table, me: str, my_name: str, body: dict, now: str) -> dict:
+    """Give (on=true, the default) or take back a high-five to someone who shares."""
+    to, key, on = body.get("to"), body.get("key"), body.get("on", True)
+    if not isinstance(key, str) or not FIVE_KEY.match(key):
+        raise Invalid(400, "key must be pr:<exercise>:<date>:<kg>:<reps> or week:<date>")
+    if not isinstance(on, bool):
+        raise Invalid(400, "on must be true or false")
+    subs = {person_id(i["sk"].removeprefix("USER#")): i["sk"].removeprefix("USER#") for i in _query(table, PK)}
+    if to not in subs:
+        raise Invalid(404, "That person doesn't share their stats")
+    if subs[to] == me:
+        raise Invalid(400, "You can't high-five yourself")
+    item_key = {"pk": FIVES + subs[to], "sk": f"{key}#{person_id(me)}"}
+    if not on:
+        table.delete_item(Key=item_key)
+        return {"to": to, "key": key, "on": False}
+    try:
+        table.put_item(
+            Item={**item_key, "key": key, "from_id": person_id(me), "from_name": my_name, "created_at": now},
+            ConditionExpression="attribute_not_exists(pk)",
+        )
+    except table.meta.client.exceptions.ConditionalCheckFailedException:
+        pass  # already given: keep the first time
+    return {"to": to, "key": key, "on": True}

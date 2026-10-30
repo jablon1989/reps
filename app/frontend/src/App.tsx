@@ -2,6 +2,7 @@ import { NavLink, Route, Routes, useLocation } from "react-router";
 import { ApiError } from "./api";
 import { LanguageProvider, browserLanguage, useT } from "./i18n";
 import { MeProvider, type MeStatus } from "./me";
+import { HighFiveNote } from "./components/HighFive";
 import { SyncBar } from "./components/SyncBar";
 import { TimerBar } from "./components/TimerBar";
 import { DocsProvider } from "./docs";
@@ -94,6 +95,7 @@ function Shell() {
     <div className="app">
       <main className="main">
         <SyncBar />
+        <HighFiveNote />
         <Routes>
           <Route path="/" element={<WorkoutPage />} />
           <Route path="/pick" element={<PickPage />} />

@@ -8,8 +8,9 @@ import { exerciseName, formatCount, formatNumber, formatTonnage } from "../forma
 import { useHistory } from "../history";
 import { useLanguage, useT, setsText } from "../i18n";
 import { useMe } from "../me";
-import { buildSummary, headToHead, personColors, type SharedPerson } from "../shared";
 import { ColorPicker } from "../components/ColorPicker";
+import { FiveButton } from "../components/HighFive";
+import { buildSummary, headToHead, personColors, prKey, weekKey, type SharedPerson } from "../shared";
 import { publish } from "../sharePublisher";
 import { weekStart } from "../stats";
 import { useSync } from "../sync";
@@ -61,6 +62,7 @@ function Shared() {
   const { byId, categories, loading } = useExercises();
   const [people, setPeople] = useState<SharedPerson[]>();
   const [error, setError] = useState<string>();
+  const [fiveError, setFiveError] = useState<string>();
   const [metric, setMetric] = useState<"workouts" | "tonnage">("workouts");
   const { me } = useMe();
   const today = todayIso();
@@ -94,6 +96,31 @@ function Shared() {
     [people],
   );
 
+  const myself = people?.find((p) => p.me);
+  // 🙌 shows at once; if it can't be sent, it goes back.
+  const toggleFive = (person: SharedPerson, fiveKey: string, on: boolean) => {
+    if (!myself) return;
+    const apply = (give: boolean) =>
+      setPeople((all) =>
+        all?.map((p) =>
+          p.id !== person.id
+            ? p
+            : {
+                ...p,
+                fives: give
+                  ? [{ key: fiveKey, from_id: myself.id, from: myself.name, at: new Date().toISOString() }, ...p.fives]
+                  : p.fives.filter((f) => !(f.key === fiveKey && f.from_id === myself.id)),
+              },
+        ),
+      );
+    apply(on);
+    setFiveError(undefined);
+    api.highFive(person.id, fiveKey, on).catch((err) => {
+      apply(!on);
+      setFiveError(errorText(err, t));
+    });
+  };
+
   if (error) return <p className="error">{error}</p>;
   if (!people) return <p className="muted">{t("usLoading")}</p>;
 
@@ -117,6 +144,11 @@ function Shared() {
     <>
       {legend}
       <ColorPicker />
+      {fiveError && (
+        <p className="error" role="alert">
+          {fiveError}
+        </p>
+      )}
       {people.length < 2 && <p className="muted card">{t("usAlone")}</p>}
 
       <h2>{t("thisWeek")}</h2>
@@ -151,6 +183,18 @@ function Shared() {
             },
           ]}
         />
+        {people.length > 1 && (
+          <div className="week-fives">
+            <span className="muted small">{t("fiveWeek")}</span>
+            {people.map((p, i) => (
+              <span key={p.id} className={`week-five ${pc(i)}`}>
+                <span className="cat-dot" aria-hidden />
+                {p.name}
+                <FiveButton person={p} fiveKey={weekKey(thisWeek)} myId={myself?.id} onToggle={toggleFive} />
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="section-head">
@@ -236,6 +280,7 @@ function Shared() {
               <span className="pr-set">
                 {formatNumber(pr.weight, lang)} kg × {pr.reps}
               </span>
+              <FiveButton person={people[pr.i]} fiveKey={prKey(pr)} myId={myself?.id} onToggle={toggleFive} />
             </li>
           ))}
         </ul>

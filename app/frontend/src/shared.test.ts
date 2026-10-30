@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { buildSummary, headToHead, personColors, type SharedPerson } from "./shared";
+import {
+  buildSummary,
+  headToHead,
+  parseFiveKey,
+  personColors,
+  prKey,
+  unseenFives,
+  weekKey,
+  type SharedPerson,
+} from "./shared";
 import type { Exercise, WorkSet } from "./types";
 
 let n = 0;
@@ -42,7 +51,15 @@ describe("shared summary", () => {
   });
 
   it("compares only built-in lifts two people have done", () => {
-    const person = (name: string, bests: SharedPerson["bests"]) => ({ ...s, name, me: false, updated_at: "", bests });
+    const person = (name: string, bests: SharedPerson["bests"]) => ({
+      ...s,
+      id: name,
+      fives: [],
+      name,
+      me: false,
+      updated_at: "",
+      bests,
+    });
     const other = buildSummary([set("2026-10-28", 90, 5), set("2026-10-28", 60, 8, "mine")], byId, today);
     const rows = headToHead([person("A", s.bests), person("B", other.bests)]);
     expect(rows.map((r) => r.exercise_id)).toEqual(["bench"]);
@@ -57,5 +74,32 @@ describe("person colours", () => {
   });
   it("uses your choice from the phone straight away", () => {
     expect(personColors([p("A", "pink", true), p("B", "teal")], "teal")).toEqual(["teal", "lime"]);
+  });
+});
+
+describe("high-fives", () => {
+  it("makes and reads keys", () => {
+    const key = prKey({ exercise_id: "flat-barbell-bench-press", date: "2026-10-28", weight: 102.5, reps: 3 });
+    expect(key).toBe("pr:flat-barbell-bench-press:2026-10-28:102.5:3");
+    expect(parseFiveKey(key)).toEqual({
+      kind: "pr",
+      exercise_id: "flat-barbell-bench-press",
+      date: "2026-10-28",
+      weight: 102.5,
+      reps: 3,
+    });
+    expect(parseFiveKey(weekKey("2026-10-26"))).toEqual({ kind: "week", week: "2026-10-26" });
+    expect(parseFiveKey("nope")).toBeUndefined();
+  });
+
+  it("finds the ones not seen yet, newest first", () => {
+    const f = (at: string) => ({ key: "week:2026-10-26", from_id: "a", from: "Asiulka", at });
+    const all = [f("2026-10-29T10:00:00Z"), f("2026-10-30T09:00:00Z"), f("2026-10-28T10:00:00Z")];
+    expect(unseenFives(all, undefined).map((x) => x.at)).toEqual([
+      "2026-10-30T09:00:00Z",
+      "2026-10-29T10:00:00Z",
+      "2026-10-28T10:00:00Z",
+    ]);
+    expect(unseenFives(all, "2026-10-29T10:00:00Z")).toHaveLength(1);
   });
 });

@@ -52,7 +52,18 @@ export interface SharedSummary {
   bests: SharedBest[];
 }
 
+/** A high-five someone gave for a PR or a week (see prKey / weekKey). */
+export interface HighFive {
+  key: string;
+  from_id: string;
+  from: string;
+  at: string;
+}
+
 export interface SharedPerson extends SharedSummary {
+  /** stands for the person on the page (not their login) */
+  id: string;
+  fives: HighFive[];
   name: string;
   me: boolean;
   color?: PersonColor | null;
@@ -74,6 +85,27 @@ export function personColors(people: SharedPerson[], mine?: PersonColor): Person
     taken.add(color);
     return color;
   });
+}
+
+/** What a high-five is for: a PR set, or a whole week (its Monday). */
+export const prKey = (pr: Pick<SharedPr, "exercise_id" | "date" | "weight" | "reps">) =>
+  `pr:${pr.exercise_id}:${pr.date}:${pr.weight}:${pr.reps}`;
+export const weekKey = (week: string) => `week:${week}`;
+
+export type FiveTarget =
+  | { kind: "pr"; exercise_id: string; date: string; weight: number; reps: number }
+  | { kind: "week"; week: string };
+
+export function parseFiveKey(key: string): FiveTarget | undefined {
+  const pr = /^pr:([a-z0-9-]+):(\d{4}-\d{2}-\d{2}):([\d.]+):(\d+)$/.exec(key);
+  if (pr) return { kind: "pr", exercise_id: pr[1], date: pr[2], weight: Number(pr[3]), reps: Number(pr[4]) };
+  const week = /^week:(\d{4}-\d{2}-\d{2})$/.exec(key);
+  return week ? { kind: "week", week: week[1] } : undefined;
+}
+
+/** High-fives not seen yet (newer than `seen`), newest first. */
+export function unseenFives(fives: HighFive[], seen: string | undefined): HighFive[] {
+  return fives.filter((f) => !seen || f.at > seen).sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
 }
 
 const round = (n: number) => Math.round(n * 100) / 100;

@@ -1,7 +1,7 @@
 import { useMemo, useRef } from "react";
 import type { T } from "./i18n";
 import { useSession } from "./session";
-import type { SharedPerson, SharedSummary } from "./shared";
+import type { HighFive, SharedPerson, SharedSummary } from "./shared";
 import type {
   Category,
   Docs,
@@ -120,6 +120,9 @@ function createApi(getToken: () => string | undefined, refresh: () => Promise<st
     driveDisconnect: () => call<void>("DELETE", "/drive"),
     shared: () => call<{ sharing: boolean; people: SharedPerson[] }>("GET", "/shared"),
     putShared: (summary: SharedSummary) => call<SharedPerson>("PUT", "/shared/me", summary),
+    highFives: () => call<{ fives: HighFive[] }>("GET", "/shared/high-fives").then((r) => r.fives),
+    highFive: (to: string, key: string, on: boolean) =>
+      call<{ on: boolean }>("POST", "/shared/high-fives", { to, key, on }),
     importUndo: () => call<{ deleted: number }>("DELETE", "/import"),
   };
 }

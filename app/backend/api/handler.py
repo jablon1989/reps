@@ -9,6 +9,7 @@ One DynamoDB table, `pk` + `sk`:
   USER#<sub> / SETTINGS   – language, …
   USER#<sub> / EX#, PREF#, SET#  – exercises and sets (workouts.py)
   SHARED     / USER#<sub>      – stats summary for the "us" page (shared.py)
+  FIVES#<sub> / <key>#<id>     – high-fives on the "us" page (shared.py)
 """
 
 from __future__ import annotations
@@ -296,6 +297,20 @@ def put_shared(event: dict, _: dict) -> dict:
     return response(200, summary)
 
 
+def get_high_fives(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    if not load_settings(user)["share"]:
+        return response(200, {"fives": []})
+    return response(200, {"fives": shared.received(table, user.sub)})
+
+
+def post_high_five(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    if not load_settings(user)["share"]:
+        raise ApiError(409, "Sharing is off")
+    return response(200, shared.high_five(table, user.sub, user.name, parse_body(event), now_iso()))
+
+
 # ---------------------------------------------------------------------------
 # Import from FitNotes: parse (preview) -> exercises -> sets (in chunks)
 # ---------------------------------------------------------------------------
@@ -479,6 +494,8 @@ ROUTES: dict[str, Callable[[dict, dict], dict]] = {
     "DELETE /api/import": import_undo,
     "GET /api/shared": get_shared,
     "PUT /api/shared/me": put_shared,
+    "GET /api/shared/high-fives": get_high_fives,
+    "POST /api/shared/high-fives": post_high_five,
 }
 
 
