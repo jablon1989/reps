@@ -25,6 +25,7 @@ from typing import Any
 import boto3
 
 import docs
+import drive
 import importer
 import people
 import workouts
@@ -375,6 +376,44 @@ def import_undo(event: dict, _: dict) -> dict:
     return response(200, {"deleted": len(sets)})
 
 
+# ---------------------------------------------------------------------------
+# Google Drive backups (drive.py)
+# ---------------------------------------------------------------------------
+def get_drive(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    return response(200, drive.status(table, user.pk))
+
+
+def post_drive_connect(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    return response(200, drive.start(table, user.pk, str(parse_body(event).get("origin") or "")))
+
+
+def post_drive_callback(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    body = parse_body(event)
+    result = drive.finish(
+        table,
+        user.pk,
+        str(body.get("code") or ""),
+        str(body.get("state") or ""),
+        str(body.get("origin") or ""),
+        now_iso(),
+    )
+    return response(200, result)
+
+
+def post_drive_export(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    return response(200, drive.export_now(table, user.pk, now_iso()))
+
+
+def delete_drive(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    drive.disconnect(table, user.pk)
+    return response(204)
+
+
 ROUTES: dict[str, Callable[[dict, dict], dict]] = {
     "GET /api/me": get_me,
     "PUT /api/me/settings": put_settings,
@@ -394,6 +433,11 @@ ROUTES: dict[str, Callable[[dict, dict], dict]] = {
     "POST /api/import/sets": import_sets,
     "POST /api/import/extras": import_extras,
     "GET /api/docs": get_docs,
+    "GET /api/drive": get_drive,
+    "POST /api/drive/connect": post_drive_connect,
+    "POST /api/drive/callback": post_drive_callback,
+    "POST /api/drive/export": post_drive_export,
+    "DELETE /api/drive": delete_drive,
     "PUT /api/docs/{kind}/{docId}": put_doc,
     "DELETE /api/docs/{kind}/{docId}": delete_doc,
     "DELETE /api/import": import_undo,
@@ -401,6 +445,11 @@ ROUTES: dict[str, Callable[[dict, dict], dict]] = {
 
 
 def handler(event: dict, context: Any = None) -> dict:
+    # The weekly schedule (EventBridge Scheduler) calls the same Lambda.
+    if event.get("action") == "drive_weekly":
+        result = drive.weekly(table)
+        log.info("Weekly Drive export: %s", result)
+        return result
     route = event.get("routeKey", "")
     fn = ROUTES.get(route)
     if not fn:

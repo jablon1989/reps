@@ -163,3 +163,14 @@ export interface Docs {
   note: DayNote[];
   plan: DayPlan[];
 }
+
+export interface DriveStatus {
+  /** the server has a Google OAuth client (otherwise the feature is off) */
+  configured: boolean;
+  connected: boolean;
+  email?: string;
+  connected_at?: string;
+  last_export?: string;
+  last_error?: string;
+  last_files?: string[];
+}

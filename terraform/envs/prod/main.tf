@@ -40,6 +40,10 @@ module "api" {
 
   data_table_name = module.storage.data_table_name
   data_table_arn  = module.storage.data_table_arn
+
+  # Drive backups: the Google OAuth client is made by hand (README), not by Terraform.
+  google_oauth_param = "/${var.project}/${var.environment}/google-oauth"
+  app_origins        = local.app_origins
 }
 
 module "cdn" {

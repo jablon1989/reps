@@ -23,6 +23,8 @@ function WithSession({ config, children }: { config: AppConfig; children: ReactN
       // Stay logged in across browser restarts (refresh token lasts 30 days).
       userStore={new WebStorageStateStore({ store: window.localStorage })}
       automaticSilentRenew
+      // Google's Drive answer also comes back as ?code=…&state=…: it isn't ours to handle.
+      skipSigninCallback={window.location.pathname.startsWith("/drive/")}
       onSigninCallback={(user) => {
         // Go back to the page you were on before the login redirect.
         const returnTo = (user?.state as { returnTo?: string } | undefined)?.returnTo ?? "/";

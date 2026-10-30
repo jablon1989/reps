@@ -39,3 +39,19 @@ variable "log_retention_days" {
   type    = number
   default = 30
 }
+
+variable "google_oauth_param" {
+  description = "SSM SecureString with the Google OAuth client for Drive backups: {\"client_id\", \"client_secret\"}."
+  type        = string
+}
+
+variable "app_origins" {
+  description = "The app's addresses (Google sends people back to <origin>/drive/callback)."
+  type        = list(string)
+}
+
+variable "drive_schedule" {
+  description = "When the weekly Drive backups run (EventBridge Scheduler, Polish time)."
+  type        = string
+  default     = "cron(0 3 ? * MON *)"
+}

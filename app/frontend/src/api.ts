@@ -4,6 +4,7 @@ import { useSession } from "./session";
 import type {
   Category,
   Docs,
+  DriveStatus,
   Exercise,
   ExerciseInput,
   ImportExercise,
@@ -110,6 +111,12 @@ function createApi(getToken: () => string | undefined, refresh: () => Promise<st
     importExtras: (body_weights: unknown[], notes: unknown[]) =>
       call<{ body: number; note: number }>("POST", "/import/extras", { body_weights, notes }),
     docs: () => call<Docs>("GET", "/docs"),
+    drive: () => call<DriveStatus>("GET", "/drive"),
+    driveConnect: () => call<{ url: string }>("POST", "/drive/connect", { origin: window.location.origin }),
+    driveCallback: (code: string, state: string) =>
+      call<DriveStatus>("POST", "/drive/callback", { code, state, origin: window.location.origin }),
+    driveExport: () => call<DriveStatus>("POST", "/drive/export"),
+    driveDisconnect: () => call<void>("DELETE", "/drive"),
     importUndo: () => call<{ deleted: number }>("DELETE", "/import"),
   };
 }

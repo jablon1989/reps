@@ -65,4 +65,36 @@ First deploy:
 
 After that, pushes to `main` deploy through GitHub Actions.
 
+## Google Drive backups (one-time setup)
+
+Each person can connect their own Google Drive (Settings → Google Drive
+backup). Every Monday at 03:00 (Polish time) reps writes `reps-<date>.csv`
+(FitNotes-style, importable back) and `reps-<date>.json` (everything) into a
+`reps` folder. reps asks only for `drive.file`: it sees just the files it made.
+
+reps needs one Google OAuth client, kept in SSM (never in git):
+
+1. <https://console.cloud.google.com> → new project "reps".
+2. APIs & Services → Library → enable **Google Drive API**.
+3. OAuth consent screen → External; app name "reps", your e-mail; scopes:
+   `openid`, `email`, `.../auth/drive.file` (all non-sensitive: no review).
+   Then **Publish app** (In production). In "Testing" Google drops the
+   access after 7 days.
+4. Credentials → Create credentials → OAuth client ID → Web application.
+   Authorised redirect URIs:
+   `https://reps.pusiaczkowo.pl/drive/callback`,
+   `https://<cloudfront domain>/drive/callback` (`terraform output cloudfront_domain`),
+   `http://localhost:5174/drive/callback`.
+5. Save the id and secret in SSM:
+
+   ```bash
+   aws ssm put-parameter --region eu-central-1 --type SecureString \
+     --name /reps/prod/google-oauth \
+     --value '{"client_id":"<id>","client_secret":"<secret>"}'
+   ```
+
+Until the parameter exists, Settings shows "Not set up on the server yet".
+The refresh tokens are stored per person in the data table (encrypted at
+rest); "Disconnect" revokes the token at Google and deletes it.
+
 Personal data (FitNotes backups, CSV exports) is gitignored: this repo is public.

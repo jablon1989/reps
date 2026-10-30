@@ -79,14 +79,14 @@ DynamoDB, Cognito, Terraform, GitHub Actions. The frontend is React + Vite.
    - PWA install
    - local queue and sync
 6. **Routines, body weight and measurements, goals, comments** ✅
-7. **Google Drive export**
+7. **Google Drive export** ✅
    - one-time connect (OAuth)
    - weekly scheduled export and "Export now"
 8. **Shared "us" stats page**
 
 ## Needed from you later
 
-- A Google Cloud project with an OAuth client (Drive API, `drive.file` scope).
-  This is for stage 7; I'll write the steps when we get there.
+- A Google Cloud project with an OAuth client, saved in SSM: steps in the
+  README ("Google Drive backups").
 - The bootstrap apply for the deploy roles, which I can't run myself.
 - The aura-the-husky apply (reps groups, invite e-mail, tile) before the first reps deploy.

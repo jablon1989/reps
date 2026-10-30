@@ -226,6 +226,23 @@ const en = {
   bodyGoalLeft: "{d} kg to goal",
   bodyGoalReached: "Goal reached 🎉",
   importExtras: "Also {body} body weight entries and {notes} workout notes.",
+  driveTitle: "Google Drive backup",
+  driveIntro:
+    "Every Monday reps saves your data to a “reps” folder in your Google Drive: a CSV (opens in FitNotes or any spreadsheet) and a full backup. reps can only see the files it makes.",
+  driveNotSetUp: "Not set up on the server yet.",
+  driveConnect: "Connect Google Drive",
+  driveConnecting: "Connecting…",
+  driveConnectedAs: "Connected: {email}",
+  driveLast: "Last backup: {when}",
+  driveNever: "No backup yet.",
+  driveExportNow: "Back up now",
+  driveExporting: "Backing up…",
+  driveDone: "Saved {files} to Drive.",
+  driveDisconnect: "Disconnect",
+  driveDisconnectConfirm: "Stop the backups and disconnect Google Drive? Files already in Drive stay.",
+  driveFinishing: "Connecting Google Drive…",
+  driveCancelled: "Google Drive wasn't connected.",
+  driveProblem: "Last try failed: {error}",
 };
 
 type Key = keyof typeof en;
@@ -453,6 +470,23 @@ const pl: Record<Key, string> = {
   bodyGoalLeft: "{d} kg do celu",
   bodyGoalReached: "Cel osiągnięty 🎉",
   importExtras: "Do tego {body} pomiarów wagi i {notes} notatek z treningów.",
+  driveTitle: "Kopia na Dysku Google",
+  driveIntro:
+    "W każdy poniedziałek reps zapisuje Twoje dane w folderze „reps” na Dysku Google: CSV (otworzysz w FitNotes albo arkuszu) i pełną kopię. reps widzi tylko pliki, które sam utworzył.",
+  driveNotSetUp: "Jeszcze nie skonfigurowane na serwerze.",
+  driveConnect: "Połącz z Dyskiem Google",
+  driveConnecting: "Łączę…",
+  driveConnectedAs: "Połączono: {email}",
+  driveLast: "Ostatnia kopia: {when}",
+  driveNever: "Jeszcze nie było kopii.",
+  driveExportNow: "Zrób kopię teraz",
+  driveExporting: "Zapisuję…",
+  driveDone: "Zapisano na Dysku: {files}.",
+  driveDisconnect: "Rozłącz",
+  driveDisconnectConfirm: "Zatrzymać kopie i rozłączyć Dysk Google? Pliki na Dysku zostaną.",
+  driveFinishing: "Łączę z Dyskiem Google…",
+  driveCancelled: "Nie połączono Dysku Google.",
+  driveProblem: "Ostatnia próba nie wyszła: {error}",
 };
 
 export const DICTIONARIES: Record<Language, Record<Key, string>> = { en, pl };

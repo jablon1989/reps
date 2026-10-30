@@ -26,6 +26,11 @@ locals {
     "GET /api/docs",
     "PUT /api/docs/{kind}/{docId}",
     "DELETE /api/docs/{kind}/{docId}",
+    "GET /api/drive",
+    "POST /api/drive/connect",
+    "POST /api/drive/callback",
+    "POST /api/drive/export",
+    "DELETE /api/drive",
     "DELETE /api/import",
   ]
 }
@@ -61,6 +66,8 @@ resource "aws_iam_role" "api" {
   assume_role_policy = data.aws_iam_policy_document.assume_lambda.json
 }
 
+data "aws_caller_identity" "current" {}
+
 data "aws_iam_policy_document" "api" {
   statement {
     sid       = "Logs"
@@ -92,6 +99,13 @@ data "aws_iam_policy_document" "api" {
     ]
     resources = [var.user_pool_arn]
   }
+
+  # The Google OAuth client for Drive backups (a SecureString made by hand, see README).
+  statement {
+    sid       = "GoogleOAuthClient"
+    actions   = ["ssm:GetParameter"]
+    resources = ["arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter${var.google_oauth_param}"]
+  }
 }
 
 resource "aws_iam_role_policy" "api" {
@@ -118,8 +132,10 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
-      DATA_TABLE   = var.data_table_name
-      USER_POOL_ID = var.user_pool_id
+      DATA_TABLE         = var.data_table_name
+      USER_POOL_ID       = var.user_pool_id
+      GOOGLE_OAUTH_PARAM = var.google_oauth_param
+      APP_ORIGINS        = join(",", var.app_origins)
     }
   }
 
@@ -204,4 +220,56 @@ resource "aws_lambda_permission" "apigw" {
   function_name = aws_lambda_function.api.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.this.execution_arn}/*/*"
+}
+
+# ---------------------------------------------------------------------------
+# Weekly Google Drive backups: the same Lambda, every Monday morning
+# ---------------------------------------------------------------------------
+data "aws_iam_policy_document" "assume_scheduler" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["scheduler.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "drive_weekly" {
+  name               = "${var.name}-drive-weekly"
+  assume_role_policy = data.aws_iam_policy_document.assume_scheduler.json
+}
+
+resource "aws_iam_role_policy" "drive_weekly" {
+  name = "invoke-api"
+  role = aws_iam_role.drive_weekly.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = "lambda:InvokeFunction"
+      Resource = aws_lambda_function.api.arn
+    }]
+  })
+}
+
+resource "aws_scheduler_schedule" "drive_weekly" {
+  name                         = "${var.name}-drive-weekly"
+  description                  = "Back up everyone's reps data to their Google Drive"
+  schedule_expression          = var.drive_schedule
+  schedule_expression_timezone = "Europe/Warsaw"
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+  target {
+    arn      = aws_lambda_function.api.arn
+    role_arn = aws_iam_role.drive_weekly.arn
+    input    = jsonencode({ action = "drive_weekly" })
+
+    retry_policy {
+      maximum_retry_attempts = 2
+    }
+  }
 }

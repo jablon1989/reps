@@ -10,6 +10,7 @@ import { HistoryProvider } from "./history";
 import { ExerciseStatsPage } from "./pages/ExerciseStatsPage";
 import { StatsPage } from "./pages/StatsPage";
 import { BodyPage } from "./pages/BodyPage";
+import { DriveCallbackPage } from "./pages/DriveCallbackPage";
 import { ExercisesPage } from "./pages/ExercisesPage";
 import { RoutinesPage } from "./pages/RoutinesPage";
 import { ImportPage } from "./pages/ImportPage";
@@ -100,6 +101,7 @@ function Shell() {
           <Route path="/routines" element={<RoutinesPage />} />
           <Route path="/body" element={<BodyPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/drive/callback" element={<DriveCallbackPage />} />
           <Route path="/import" element={<ImportPage />} />
           <Route path="*" element={<div className="center-screen muted">{t("pageNotFound")}</div>} />
         </Routes>

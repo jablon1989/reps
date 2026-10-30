@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router";
+import { DriveSection } from "../components/DriveSection";
 import { errorText, useApi } from "../api";
 import { LANGUAGES, LANGUAGE_NAMES, changesText, useT } from "../i18n";
 import { useMe } from "../me";
@@ -43,6 +44,8 @@ export function SettingsPage() {
         <span>📥 {t("importOpen")}</span>
         <span aria-hidden>›</span>
       </Link>
+
+      <DriveSection />
 
       <h2>{t("account")}</h2>
       <div className="card">
