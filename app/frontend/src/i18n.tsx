@@ -260,6 +260,13 @@ const en = {
   bodyPartsMonth: "Body parts this month",
   longestStreak: "Longest streak",
   prBy: "{name} · {date}",
+  yourColor: "Your colour on the Us page",
+  color_lime: "Lime",
+  color_blue: "Blue",
+  color_pink: "Pink",
+  color_orange: "Orange",
+  color_violet: "Violet",
+  color_teal: "Teal",
 };
 
 type Key = keyof typeof en;
@@ -521,6 +528,13 @@ const pl: Record<Key, string> = {
   bodyPartsMonth: "Partie w tym miesiącu",
   longestStreak: "Najdłuższa seria",
   prBy: "{name} · {date}",
+  yourColor: "Twój kolor na stronie My",
+  color_lime: "Limonkowy",
+  color_blue: "Niebieski",
+  color_pink: "Różowy",
+  color_orange: "Pomarańczowy",
+  color_violet: "Fioletowy",
+  color_teal: "Morski",
 };
 
 export const DICTIONARIES: Record<Language, Record<Key, string>> = { en, pl };

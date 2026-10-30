@@ -3,12 +3,14 @@ import { ApiError, useApi } from "./api";
 import { LanguageProvider, browserLanguage, type Language } from "./i18n";
 import { idbGet, idbSet } from "./idb";
 import { useSync } from "./sync";
+import type { PersonColor } from "./shared";
 import type { Me } from "./types";
 
 interface MeState {
   me: Me;
   setLanguage: (language: Language) => void;
   setShare: (share: boolean) => void;
+  setColor: (color: PersonColor) => void;
 }
 
 const MeContext = createContext<MeState | null>(null);
@@ -79,12 +81,13 @@ export function MeProvider({ fallback, children }: { fallback: (s: Status) => Re
   );
   const setLanguage = useCallback((language: Language) => save({ language }), [save]);
   const setShare = useCallback((share: boolean) => save({ share }), [save]);
+  const setColor = useCallback((color: PersonColor) => save({ color }), [save]);
 
   if (status.kind !== "ready") {
     return <LanguageProvider language={browserLanguage()}>{fallback(status)}</LanguageProvider>;
   }
   return (
-    <MeContext.Provider value={{ me: status.me, setLanguage, setShare }}>
+    <MeContext.Provider value={{ me: status.me, setLanguage, setShare, setColor }}>
       <LanguageProvider language={status.me.settings.language}>{children}</LanguageProvider>
     </MeContext.Provider>
   );

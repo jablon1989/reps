@@ -4,6 +4,10 @@ import { byTime, e1rm, isLift, recentPrs, tonnage, volumeByPart, weekStart, week
 import type { Exercise, WorkSet } from "./types";
 
 export const SHARED_WEEKS = 12;
+
+/** Colours people can pick for their stats on the "us" page (CSS: .pc-<colour>). */
+export const PERSON_COLORS = ["lime", "blue", "pink", "orange", "violet", "teal"] as const;
+export type PersonColor = (typeof PERSON_COLORS)[number];
 const PRS = 10;
 const BESTS = 40;
 
@@ -51,7 +55,25 @@ export interface SharedSummary {
 export interface SharedPerson extends SharedSummary {
   name: string;
   me: boolean;
+  color?: PersonColor | null;
   updated_at: string;
+}
+
+/**
+ * Everyone's colour: their pick (yours from the phone, so a change shows at
+ * once), unless someone earlier in the list already has it; then the first free one.
+ */
+export function personColors(people: SharedPerson[], mine?: PersonColor): PersonColor[] {
+  const taken = new Set<PersonColor>();
+  return people.map((p) => {
+    const wanted = (p.me ? (mine ?? p.color) : p.color) ?? undefined;
+    const color =
+      wanted && PERSON_COLORS.includes(wanted) && !taken.has(wanted)
+        ? wanted
+        : (PERSON_COLORS.find((c) => !taken.has(c)) ?? PERSON_COLORS[0]);
+    taken.add(color);
+    return color;
+  });
 }
 
 const round = (n: number) => Math.round(n * 100) / 100;

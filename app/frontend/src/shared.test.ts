@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSummary, headToHead, type SharedPerson } from "./shared";
+import { buildSummary, headToHead, personColors, type SharedPerson } from "./shared";
 import type { Exercise, WorkSet } from "./types";
 
 let n = 0;
@@ -47,5 +47,15 @@ describe("shared summary", () => {
     const rows = headToHead([person("A", s.bests), person("B", other.bests)]);
     expect(rows.map((r) => r.exercise_id)).toEqual(["bench"]);
     expect(rows[0].bests.map((b) => b?.e1rm)).toEqual([116.67, 105]);
+  });
+});
+
+describe("person colours", () => {
+  const p = (name: string, color: SharedPerson["color"], me = false) => ({ name, color, me }) as SharedPerson;
+  it("keeps picks, gives a clash the first free colour", () => {
+    expect(personColors([p("A", "pink", true), p("B", "pink"), p("C", null)])).toEqual(["pink", "lime", "blue"]);
+  });
+  it("uses your choice from the phone straight away", () => {
+    expect(personColors([p("A", "pink", true), p("B", "teal")], "teal")).toEqual(["teal", "lime"]);
   });
 });

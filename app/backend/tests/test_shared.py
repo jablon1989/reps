@@ -85,3 +85,17 @@ def test_summary_validation(aws):
     for body in bad:
         assert call(aws, "PUT /api/shared/me", body=body)[0] == 400, body
     assert call(aws, "PUT /api/me/settings", body={"share": "yes"})[0] == 400
+
+
+def test_colour(aws):
+    share(aws, ADMIN)
+    call(aws, "PUT /api/shared/me", body=SUMMARY)
+    assert call(aws, "GET /api/shared")[1]["people"][0]["color"] is None
+    assert call(aws, "PUT /api/me/settings", body={"color": "violet"})[0] == 200
+    assert call(aws, "GET /api/shared")[1]["people"][0]["color"] == "violet"
+    assert call(aws, "GET /api/me")[1]["settings"]["color"] == "violet"
+    assert call(aws, "PUT /api/me/settings", body={"color": "gold"})[0] == 400
+    # Picking a colour before sharing is fine; it's used once the summary arrives.
+    assert call(aws, "PUT /api/me/settings", MEMBER, body={"color": "teal"})[0] == 200
+    share(aws, MEMBER)
+    assert call(aws, "PUT /api/shared/me", MEMBER, body=SUMMARY)[1]["color"] == "teal"

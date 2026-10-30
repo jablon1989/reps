@@ -1,1 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#111315"/><rect x="8" y="22" width="8" height="20" rx="2.5" fill="#d4ff3a"/><rect x="16" y="17" width="8" height="30" rx="2.5" fill="#d4ff3a"/><rect x="40" y="17" width="8" height="30" rx="2.5" fill="#d4ff3a"/><rect x="48" y="22" width="8" height="20" rx="2.5" fill="#d4ff3a"/><rect x="24" y="29" width="16" height="6" rx="2" fill="#eceff2"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>reps – Aura with a dumbbell</title>
+  <rect width="512" height="512" rx="112" fill="#16191c"/>
+  <circle cx="256" cy="282" r="206" fill="#d4ff3a"/>
+
+  <!-- ears -->
+  <path d="M146 218 L124 58 Q128 44 142 52 L242 152 Z" fill="#c9ccd0"/>
+  <path d="M150 210 L132 72 L232 154 Z" fill="#eeeeec"/>
+  <path d="M160 196 L142 86 L220 156 Z" fill="#e3aaa4"/>
+  <path d="M168 186 L154 108 L210 158 Z" fill="#efc4bf"/>
+  <path d="M366 218 L388 58 Q384 44 370 52 L270 152 Z" fill="#c9ccd0"/>
+  <path d="M362 210 L380 72 L280 154 Z" fill="#eeeeec"/>
+  <path d="M352 196 L370 86 L292 156 Z" fill="#e3aaa4"/>
+  <path d="M344 186 L358 108 L302 158 Z" fill="#efc4bf"/>
+
+  <!-- head: white fluff -->
+  <path d="M256 112 C330 112 380 150 392 210 C430 230 442 290 422 330 C444 352 424 384 402 382 C390 424 330 456 256 460 C182 456 122 424 110 382 C88 384 68 352 90 330 C70 290 82 230 120 210 C132 150 182 112 256 112 Z" fill="#f6f5f1"/>
+  <path d="M110 382 C122 424 182 456 256 460 C330 456 390 424 402 382 C380 400 330 420 256 422 C182 420 132 400 110 382 Z" fill="#e6e4df"/>
+  <path d="M90 330 C100 350 112 360 128 362 C112 340 104 320 104 300 Z" fill="#e6e4df"/>
+  <path d="M422 330 C412 350 400 360 384 362 C400 340 408 320 408 300 Z" fill="#e6e4df"/>
+
+  <!-- light grey cap with a peak between the eyes -->
+  <path d="M256 112 C320 112 372 146 388 202 C362 196 338 206 320 224 C300 206 280 204 270 232 L256 266 L242 232 C232 204 212 206 192 224 C174 206 150 196 124 202 C140 146 192 112 256 112 Z" fill="#ccd0d3"/>
+  <path d="M256 124 C300 124 340 146 356 180 C330 178 310 186 296 200 C284 190 270 196 262 214 L256 230 L250 214 C242 196 228 190 216 200 C202 186 182 178 156 180 C172 146 212 124 256 124 Z" fill="#bcc1c5"/>
+  <!-- soft grey around the eyes -->
+  <path d="M168 238 C186 222 214 222 234 236 C214 232 190 234 168 246 Z" fill="#c9ccd0"/>
+  <path d="M344 238 C326 222 298 222 278 236 C298 232 322 234 344 246 Z" fill="#c9ccd0"/>
+
+  <!-- eyes: amber -->
+  <path d="M174 254 Q202 222 236 242 Q212 272 174 254 Z" fill="#2a1a10"/>
+  <path d="M182 252 Q204 230 229 244 Q209 264 182 252 Z" fill="#a8621f"/>
+  <circle cx="207" cy="247" r="7.5" fill="#140c08"/>
+  <circle cx="211" cy="243" r="3" fill="#fff"/>
+  <path d="M338 254 Q310 222 276 242 Q300 272 338 254 Z" fill="#2a1a10"/>
+  <path d="M330 252 Q308 230 283 244 Q303 264 330 252 Z" fill="#a8621f"/>
+  <circle cx="305" cy="247" r="7.5" fill="#140c08"/>
+  <circle cx="309" cy="243" r="3" fill="#fff"/>
+
+  <!-- open mouth and tongue (under the bar) -->
+  <path d="M196 382 Q256 420 316 382 Q296 404 256 408 Q216 404 196 382 Z" fill="#4a2226"/>
+  <path d="M232 392 Q226 446 256 452 Q288 446 282 392 Z" fill="#d9707c"/>
+  <path d="M257 400 Q258 426 256 444" fill="none" stroke="#b5525f" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- dumbbell held in the mouth -->
+  <rect x="72" y="377" width="368" height="15" rx="7" fill="#c9ced3"/>
+  <rect x="72" y="386" width="368" height="6" rx="3" fill="#8e959c"/>
+  <rect x="50" y="344" width="28" height="82" rx="7" fill="#3a4047"/>
+  <rect x="76" y="330" width="32" height="110" rx="8" fill="#2a2e33"/>
+  <rect x="82" y="338" width="4" height="94" rx="2" fill="#4b525a"/>
+  <rect x="108" y="370" width="10" height="30" rx="3" fill="#8e959c"/>
+  <rect x="434" y="344" width="28" height="82" rx="7" fill="#3a4047"/>
+  <rect x="404" y="330" width="32" height="110" rx="8" fill="#2a2e33"/>
+  <rect x="410" y="338" width="4" height="94" rx="2" fill="#4b525a"/>
+  <rect x="394" y="370" width="10" height="30" rx="3" fill="#8e959c"/>
+
+  <!-- canines over the bar -->
+  <path d="M222 372 L230 372 L226 388 Z" fill="#fbfaf6"/>
+  <path d="M282 372 L290 372 L286 388 Z" fill="#fbfaf6"/>
+
+  <!-- muzzle, lips and nose (black with Aura's pink patch) -->
+  <path d="M256 340 C256 362 238 374 210 372" fill="none" stroke="#3a2a28" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M256 340 C256 362 274 374 302 372" fill="none" stroke="#3a2a28" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M224 310 Q256 290 288 310 Q286 338 256 344 Q226 338 224 310 Z" fill="#1d1c1e"/>
+  <ellipse cx="256" cy="326" rx="13" ry="10" fill="#c98f8c"/>
+  <ellipse cx="242" cy="316" rx="6" ry="3.5" fill="#050505"/>
+  <ellipse cx="270" cy="316" rx="6" ry="3.5" fill="#050505"/>
+  <ellipse cx="248" cy="303" rx="9" ry="3" fill="#ffffff" opacity="0.35"/>
+</svg>

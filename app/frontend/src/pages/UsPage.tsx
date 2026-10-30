@@ -8,7 +8,8 @@ import { exerciseName, formatCount, formatNumber, formatTonnage } from "../forma
 import { useHistory } from "../history";
 import { useLanguage, useT, setsText } from "../i18n";
 import { useMe } from "../me";
-import { buildSummary, headToHead, type SharedPerson } from "../shared";
+import { buildSummary, headToHead, personColors, type SharedPerson } from "../shared";
+import { ColorPicker } from "../components/ColorPicker";
 import { publish } from "../sharePublisher";
 import { weekStart } from "../stats";
 import { useSync } from "../sync";
@@ -30,8 +31,6 @@ export function StatsSwitch() {
     </div>
   );
 }
-
-const person = (i: number) => `person-${Math.min(i, 3)}`;
 
 export function UsPage() {
   const t = useT();
@@ -63,6 +62,7 @@ function Shared() {
   const [people, setPeople] = useState<SharedPerson[]>();
   const [error, setError] = useState<string>();
   const [metric, setMetric] = useState<"workouts" | "tonnage">("workouts");
+  const { me } = useMe();
   const today = todayIso();
   const key = sync.storeKey("shared-sent");
   const ready = !!sets && !loading && sync.pending === 0;
@@ -97,13 +97,15 @@ function Shared() {
   if (error) return <p className="error">{error}</p>;
   if (!people) return <p className="muted">{t("usLoading")}</p>;
 
+  const colors = personColors(people, me.settings.color);
+  const pc = (i: number) => `pc-${colors[i]}`;
   const thisWeek = weekStart(today);
   const week = (p: SharedPerson) => p.weeks.find((w) => w.week === thisWeek);
   const kg = (n: number) => formatTonnage(n, lang);
   const legend = (
     <ul className="legend">
       {people.map((p, i) => (
-        <li key={i} className={person(i)}>
+        <li key={i} className={pc(i)}>
           <span className="cat-dot" aria-hidden />
           {p.name}
         </li>
@@ -114,13 +116,14 @@ function Shared() {
   return (
     <>
       {legend}
+      <ColorPicker />
       {people.length < 2 && <p className="muted card">{t("usAlone")}</p>}
 
       <h2>{t("thisWeek")}</h2>
       <div className="card">
         <CompareRows
           names={names}
-          seriesClass={person}
+          seriesClass={pc}
           rows={[
             {
               key: "workouts",
@@ -168,7 +171,7 @@ function Shared() {
       </div>
       <div className="card">
         <GroupedColumns
-          seriesClass={person}
+          seriesClass={pc}
           ariaLabel={`${t("perWeek")}, ${t("last12Weeks")}`}
           groups={(people[0]?.weeks ?? []).map((w, i, all) => ({
             key: w.week,
@@ -195,7 +198,7 @@ function Shared() {
             <p className="muted small card-note">{t("headToHeadNote")}</p>
             <CompareRows
               names={names}
-              seriesClass={person}
+              seriesClass={pc}
               rows={h2h.slice(0, 15).map((r) => ({
                 key: r.exercise_id,
                 className: `cat-${r.category}`,
@@ -226,7 +229,7 @@ function Shared() {
               <span className="pr-main">
                 <strong>{exerciseName(byId.get(pr.exercise_id) ?? pr, lang)}</strong>
                 <span className="muted small">
-                  <span className={`who ${person(pr.i)}`} aria-hidden />
+                  <span className={`who ${pc(pr.i)}`} aria-hidden />
                   {t("prBy", { name: pr.who, date: formatDay(pr.date, lang) })}
                 </span>
               </span>
@@ -242,7 +245,7 @@ function Shared() {
       <div className="card">
         <CompareRows
           names={names}
-          seriesClass={person}
+          seriesClass={pc}
           rows={categories
             .filter((c) => people.some((p) => p.parts.some((x) => x.category === c.id)))
             .map((c) => {
@@ -267,7 +270,7 @@ function Shared() {
       <div className="card">
         <CompareRows
           names={names}
-          seriesClass={person}
+          seriesClass={pc}
           rows={[
             {
               key: "workouts",

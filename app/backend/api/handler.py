@@ -134,7 +134,10 @@ def require_admin(user: User) -> None:
 # ---------------------------------------------------------------------------
 def load_settings(user: User) -> dict:
     item = table.get_item(Key={"pk": user.pk, "sk": "SETTINGS"}).get("Item") or {}
-    return {"language": item.get("language", "en"), "share": bool(item.get("share", False))}
+    settings = {"language": item.get("language", "en"), "share": bool(item.get("share", False))}
+    if item.get("color"):
+        settings["color"] = item["color"]
+    return settings
 
 
 def get_me(event: dict, _: dict) -> dict:
@@ -166,6 +169,11 @@ def put_settings(event: dict, _: dict) -> dict:
         # Turning it off takes your summary off the page straight away.
         if not body["share"]:
             shared.delete(table, user.sub)
+    if "color" in body:
+        if body["color"] not in shared.COLORS:
+            raise ApiError(400, f"color must be one of {', '.join(shared.COLORS)}")
+        settings["color"] = body["color"]
+        shared.set_color(table, user.sub, body["color"])
     table.put_item(Item={"pk": user.pk, "sk": "SETTINGS", **settings, "updated_at": now_iso()})
     return response(200, settings)
 
@@ -281,9 +289,11 @@ def get_shared(event: dict, _: dict) -> dict:
 
 def put_shared(event: dict, _: dict) -> dict:
     user = current_user(event)
-    if not load_settings(user)["share"]:
+    settings = load_settings(user)
+    if not settings["share"]:
         raise ApiError(409, "Sharing is off")
-    return response(200, shared.put(table, user.sub, user.name, parse_body(event), now_iso()))
+    summary = shared.put(table, user.sub, user.name, settings.get("color"), parse_body(event), now_iso())
+    return response(200, summary)
 
 
 # ---------------------------------------------------------------------------

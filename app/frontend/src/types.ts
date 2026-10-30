@@ -1,9 +1,12 @@
 import type { Language } from "./i18n";
+import type { PersonColor } from "./shared";
 
 export interface Settings {
   language: Language;
   /** on the shared "us" page */
   share?: boolean;
+  /** your colour on the shared "us" page */
+  color?: PersonColor;
 }
 
 export interface Me {

@@ -5,7 +5,7 @@
  * - /config.json, icons, manifest: network first, cache as fallback
  * - /api/*: never cached here – the app keeps its own data (IndexedDB) and a sync queue
  */
-const CACHE = "reps-v1";
+const CACHE = "reps-v2";
 const SHELL = ["/", "/config.json", "/manifest.json", "/favicon.svg", "/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {

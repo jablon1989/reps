@@ -1449,31 +1449,66 @@ p {
 }
 
 /* ---------- us (shared stats) ---------- */
-/* One colour per person; names are always written next to it. */
+/* Each person's colour (they pick it); names are always written next to it. */
 :root {
-  --p0: var(--accent);
-  --p1: #4aa3ff;
-  --p2: #f08fb6;
-  --p3: #f0a030;
+  --pc-lime: var(--accent);
+  --pc-blue: #4aa3ff;
+  --pc-pink: #f08fb6;
+  --pc-orange: #f0a030;
+  --pc-violet: #a78bfa;
+  --pc-teal: #2dd4bf;
 }
 @media (prefers-color-scheme: light) {
   :root {
-    --p1: #1f6fd1;
-    --p2: #c2457a;
-    --p3: #b36b00;
+    --pc-blue: #1f6fd1;
+    --pc-pink: #c2457a;
+    --pc-orange: #b36b00;
+    --pc-violet: #6d4fd8;
+    --pc-teal: #0f8a7e;
   }
 }
-.person-0 {
-  --cat: var(--p0);
+.pc-lime {
+  --cat: var(--pc-lime);
 }
-.person-1 {
-  --cat: var(--p1);
+.pc-blue {
+  --cat: var(--pc-blue);
 }
-.person-2 {
-  --cat: var(--p2);
+.pc-pink {
+  --cat: var(--pc-pink);
 }
-.person-3 {
-  --cat: var(--p3);
+.pc-orange {
+  --cat: var(--pc-orange);
+}
+.pc-violet {
+  --cat: var(--pc-violet);
+}
+.pc-teal {
+  --cat: var(--pc-teal);
+}
+.color-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 0.6rem 0 0.2rem;
+}
+.swatches {
+  display: flex;
+  gap: 0.45rem;
+}
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--cat);
+  box-shadow: 0 0 0 1px var(--line);
+  cursor: pointer;
+  padding: 0;
+}
+.swatch.on {
+  box-shadow: 0 0 0 2px var(--text);
 }
 .segmented a {
   display: grid;

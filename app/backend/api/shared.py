@@ -19,6 +19,8 @@ from boto3.dynamodb.conditions import Key
 from workouts import Invalid
 
 PK = "SHARED"
+# Each person picks the colour their stats are drawn in on the "us" page.
+COLORS = ("lime", "blue", "pink", "orange", "violet", "teal")
 MAX_BYTES = 60_000
 LIMITS = {"weeks": 26, "parts": 20, "prs": 20, "bests": 60}
 NUMBER = (int, float)
@@ -107,13 +109,29 @@ def check(body: dict) -> dict:
     return out
 
 
-def put(table, sub: str, name: str, body: dict, now: str) -> dict:
+def put(table, sub: str, name: str, color: str | None, body: dict, now: str) -> dict:
     summary = check(body)
     data = json.dumps(summary, separators=(",", ":"))
     if len(data) > MAX_BYTES:
         raise Invalid(400, "Summary is too big")
-    table.put_item(Item={"pk": PK, "sk": f"USER#{sub}", "name": name, "data": data, "updated_at": now})
-    return {**summary, "name": name, "updated_at": now}
+    item = {"pk": PK, "sk": f"USER#{sub}", "name": name, "data": data, "updated_at": now}
+    if color:
+        item["color"] = color
+    table.put_item(Item=item)
+    return {**summary, "name": name, "color": color, "updated_at": now}
+
+
+def set_color(table, sub: str, color: str) -> None:
+    """A new colour shows on the page at once (if there's a summary there)."""
+    try:
+        table.update_item(
+            Key={"pk": PK, "sk": f"USER#{sub}"},
+            UpdateExpression="SET color = :c",
+            ConditionExpression="attribute_exists(pk)",
+            ExpressionAttributeValues={":c": color},
+        )
+    except table.meta.client.exceptions.ConditionalCheckFailedException:
+        pass
 
 
 def delete(table, sub: str) -> None:
@@ -138,6 +156,7 @@ def list_all(table, me: str) -> list[dict]:
                 **json.loads(item["data"]),
                 "me": sub == me,
                 "name": item.get("name", ""),
+                "color": item.get("color"),
                 "updated_at": item.get("updated_at"),
             }
         )

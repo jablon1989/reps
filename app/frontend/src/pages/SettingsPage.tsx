@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router";
+import { ColorPicker } from "../components/ColorPicker";
 import { DriveSection } from "../components/DriveSection";
 import { errorText, useApi } from "../api";
 import { LANGUAGES, LANGUAGE_NAMES, changesText, useT } from "../i18n";
@@ -49,6 +50,7 @@ export function SettingsPage() {
             <span className="muted small">{me.settings.share ? t("shareOnNote") : t("shareOffNote")}</span>
           </span>
         </label>
+        <ColorPicker />
       </div>
 
       <h2>{t("importTitle")}</h2>

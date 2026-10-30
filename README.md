@@ -54,7 +54,7 @@ app/frontend         React + Vite, dark and phone-first, EN/PL (src/i18n.tsx)
 terraform/bootstrap  state bucket + GitHub deploy roles (run once, by hand)
 terraform/envs/prod  the app: CloudFront, API Gateway, Lambda, DynamoDB
 tools/dev_server.py  fake backend for `make local`
-tools/make_icons.py  draws the app icons (PNG) into app/frontend/public/icons
+tools/make_icons.sh  draws the app icons (PNG) from public/favicon.svg (macOS)
 ```
 
 ## Run it
