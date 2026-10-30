@@ -82,6 +82,7 @@ data "aws_iam_policy_document" "api" {
       "dynamodb:PutItem",
       "dynamodb:UpdateItem",
       "dynamodb:DeleteItem",
+      "dynamodb:BatchWriteItem", # imports and "Undo import" write/delete 25 at a time
       "dynamodb:Query",
       "dynamodb:Scan",
     ]
