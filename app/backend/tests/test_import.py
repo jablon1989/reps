@@ -12,6 +12,8 @@ CREATE TABLE training_log (_id INTEGER PRIMARY KEY, exercise_id INTEGER NOT NULL
   metric_weight INTEGER NOT NULL, reps INTEGER NOT NULL, distance INTEGER NOT NULL DEFAULT 0,
   duration_seconds INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE Comment (_id INTEGER PRIMARY KEY, date DATE, owner_type_id INTEGER, owner_id INTEGER, comment TEXT);
+CREATE TABLE BodyWeight (_id INTEGER PRIMARY KEY, date TEXT, body_weight_metric REAL, body_fat REAL, comments TEXT);
+CREATE TABLE WorkoutComment (_id INTEGER PRIMARY KEY, date TEXT, comment TEXT);
 """
 
 
@@ -44,6 +46,9 @@ def fitnotes_backup(tmp_path) -> bytes:
         ],
     )
     db.execute("INSERT INTO Comment VALUES (1, '2024-06-17', 1, 2, 'felt heavy')")
+    db.execute("INSERT INTO BodyWeight VALUES (1, '2024-06-17', 84.5, 18.2, '')")
+    db.execute("INSERT INTO BodyWeight VALUES (2, '2024-06-20', 84.0, 0, '')")
+    db.execute("INSERT INTO WorkoutComment VALUES (1, '2024-06-18', 'Short run, knee ok')")
     db.commit()
     db.close()
     return path.read_bytes()
@@ -168,3 +173,34 @@ def test_parse_rejects_other_files(aws):
 
 def test_sets_chunk_limit(aws):
     assert call(aws, "POST /api/import/sets", body={"sets": [{}] * 1001})[0] == 400
+
+
+def test_body_weight_and_workout_notes_come_along(aws, tmp_path):
+    _, preview = parse(aws, "x.fitnotes", fitnotes_backup(tmp_path))
+    assert preview["body_weights"] == [
+        {"date": "2024-06-17", "weight": 84.5, "bodyfat": 18.2},
+        {"date": "2024-06-20", "weight": 84.0},
+    ]
+    assert preview["notes"] == [{"date": "2024-06-18", "text": "Short run, knee ok"}]
+    body = {"body_weights": preview["body_weights"], "notes": preview["notes"]}
+    status, saved = call(aws, "POST /api/import/extras", body=body)
+    assert (status, saved) == (200, {"body": 2, "note": 1})
+    docs = call(aws, "GET /api/docs")[1]
+    assert [b["weight"] for b in docs["body"]] == [84.5, 84]
+    assert docs["note"][0]["text"] == "Short run, knee ok"
+
+
+def test_old_backup_without_body_tables(aws, tmp_path):
+    path = tmp_path / "old.fitnotes"
+    db = sqlite3.connect(path)
+    db.executescript(SCHEMA.split("CREATE TABLE BodyWeight")[0])
+    db.execute("INSERT INTO Category VALUES (1, 'Back', 0, 0)")
+    db.execute("INSERT INTO exercise VALUES (1, 'Lat Pulldown', 1, 0, 0)")
+    db.execute(
+        "INSERT INTO training_log (_id, exercise_id, date, metric_weight, reps) VALUES (1, 1, '2024-01-01', 50, 10)"
+    )
+    db.commit()
+    db.close()
+    status, preview = parse(aws, "old.fitnotes", path.read_bytes())
+    assert status == 200, preview
+    assert (preview["body_weights"], preview["notes"]) == ([], [])

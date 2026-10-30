@@ -3,9 +3,10 @@ import { useNavigate } from "react-router";
 import { errorText, useApi } from "../api";
 import { formatDay } from "../dates";
 import { useExercises } from "../exercises";
+import { useDocs } from "../docs";
 import { useHistory } from "../history";
 import { exerciseName } from "../format";
-import { useLanguage, useT } from "../i18n";
+import { useLanguage, useT, setsText } from "../i18n";
 import type { ImportPreview, ImportResult } from "../types";
 
 const MAX_BYTES = 4 * 1024 * 1024; // the API takes ~6 MB, base64 adds a third
@@ -34,6 +35,7 @@ export function ImportPage() {
   const navigate = useNavigate();
   const { categories, byId, reload } = useExercises();
   const history = useHistory();
+  const docs = useDocs();
   const [step, setStep] = useState<Step>({ kind: "pick" });
   const [undoMessage, setUndoMessage] = useState<string>();
   const fmt = (n: number) => n.toLocaleString(lang === "pl" ? "pl-PL" : "en-GB");
@@ -70,7 +72,10 @@ export function ImportPage() {
         result.skipped.push(...r.skipped.slice(0, 20 - result.skipped.length));
         setStep({ kind: "importing", done: Math.min(total, start + CHUNK), total });
       }
-      await Promise.all([reload(), history.reload()]);
+      if (preview.body_weights.length || preview.notes.length) {
+        await api.importExtras(preview.body_weights, preview.notes);
+      }
+      await Promise.all([reload(), history.reload(), docs.reload()]);
       setStep({ kind: "done", result });
     } catch (err) {
       setStep({ kind: "preview", preview, categories: chosen, error: errorText(err, t) });
@@ -178,6 +183,11 @@ export function ImportPage() {
             })}
           </p>
           <p className="ok small">✓ {t("importMatched", { n: String(matched.length) })}</p>
+          {(preview.body_weights.length > 0 || preview.notes.length > 0) && (
+            <p className="muted small">
+              {t("importExtras", { body: fmt(preview.body_weights.length), notes: fmt(preview.notes.length) })}
+            </p>
+          )}
         </div>
         {fresh.length > 0 && (
           <>
@@ -189,7 +199,7 @@ export function ImportPage() {
                     <strong>{x.name}</strong>
                     <span className="muted small">
                       {" "}
-                      · {x.sets} {t("sets")}
+                      · {setsText(x.sets, lang)}
                       {x.source_category && ` · ${x.source_category}`}
                     </span>
                     {x.check_category && <span className="pill">{t("importCheck")}</span>}

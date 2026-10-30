@@ -167,6 +167,65 @@ const en = {
   logoutPending: "{changes} haven't reached the server yet and would be lost. Log out anyway?",
   needsSignal: "This needs a connection – try again with signal.",
   retry: "Try now",
+  tabBody: "Body",
+  routines: "Routines",
+  startRoutine: "Start a routine",
+  manageRoutines: "Routines",
+  newRoutine: "New routine",
+  editRoutine: "Edit routine",
+  routineName: "Name",
+  routineNamePlaceholder: "e.g. Push, Legs, Upper A",
+  noRoutines: "No routines yet. Make one to start a workout in one tap.",
+  addToRoutine: "Add exercise",
+  targetSets: "Sets",
+  targetReps: "Reps",
+  moveUp: "Move up",
+  moveDown: "Move down",
+  removeFromRoutine: "Remove",
+  deleteRoutineConfirm: "Delete this routine? Workouts you logged stay.",
+  toDo: "To do",
+  planOf: "Routine: {name}",
+  dropPlan: "Clear plan",
+  nextExercise: "Next: {name}",
+  dayNote: "Note for the day",
+  dayNotePlaceholder: "How did it go? Sleep, energy, anything…",
+  setNote: "Note (optional)",
+  exercisesN: "{n} exercises",
+  body: "Body",
+  bodyToday: "Today",
+  bodyMore: "More measurements",
+  bodyLess: "Fewer measurements",
+  bodySaved: "Saved",
+  bodyHistory: "History",
+  bodyEmpty: "Nothing measured yet. Start with today's weight.",
+  deleteEntryConfirm: "Delete this entry?",
+  f_weight: "Body weight (kg)",
+  f_bodyfat: "Body fat (%)",
+  f_waist: "Waist (cm)",
+  f_chest: "Chest (cm)",
+  f_arm: "Arm (cm)",
+  f_thigh: "Thigh (cm)",
+  f_hips: "Hips (cm)",
+  s_weight: "Weight",
+  s_bodyfat: "Body fat",
+  s_waist: "Waist",
+  s_chest: "Chest",
+  s_arm: "Arm",
+  s_thigh: "Thigh",
+  s_hips: "Hips",
+  goal: "Goal",
+  goals: "Goals",
+  setGoal: "Set a goal",
+  goalFor: "{w} kg × {reps}",
+  goalAchieved: "Done on {date} 🎉",
+  goalToGo: "{d} kg to go",
+  goalBest: "Best so far: {w} kg",
+  goalNone: "Not done yet",
+  goalRemove: "Remove goal",
+  bodyGoal: "Goal weight (kg)",
+  bodyGoalLeft: "{d} kg to goal",
+  bodyGoalReached: "Goal reached 🎉",
+  importExtras: "Also {body} body weight entries and {notes} workout notes.",
 };
 
 type Key = keyof typeof en;
@@ -335,6 +394,65 @@ const pl: Record<Key, string> = {
   logoutPending: "Nie dotarło jeszcze na serwer: {changes}. Przepadną po wylogowaniu. Wylogować mimo to?",
   needsSignal: "To wymaga połączenia – spróbuj, gdy będzie zasięg.",
   retry: "Wyślij teraz",
+  tabBody: "Ciało",
+  routines: "Plany",
+  startRoutine: "Zacznij plan",
+  manageRoutines: "Plany",
+  newRoutine: "Nowy plan",
+  editRoutine: "Edytuj plan",
+  routineName: "Nazwa",
+  routineNamePlaceholder: "np. Push, Nogi, Góra A",
+  noRoutines: "Brak planów. Zrób plan, by zaczynać trening jednym dotknięciem.",
+  addToRoutine: "Dodaj ćwiczenie",
+  targetSets: "Serie",
+  targetReps: "Powt.",
+  moveUp: "W górę",
+  moveDown: "W dół",
+  removeFromRoutine: "Usuń",
+  deleteRoutineConfirm: "Usunąć ten plan? Zapisane treningi zostaną.",
+  toDo: "Do zrobienia",
+  planOf: "Plan: {name}",
+  dropPlan: "Wyczyść plan",
+  nextExercise: "Dalej: {name}",
+  dayNote: "Notatka z dnia",
+  dayNotePlaceholder: "Jak poszło? Sen, energia, cokolwiek…",
+  setNote: "Notatka (opcjonalnie)",
+  exercisesN: "{n} ćwiczeń",
+  body: "Ciało",
+  bodyToday: "Dziś",
+  bodyMore: "Więcej pomiarów",
+  bodyLess: "Mniej pomiarów",
+  bodySaved: "Zapisano",
+  bodyHistory: "Historia",
+  bodyEmpty: "Brak pomiarów. Zacznij od dzisiejszej wagi.",
+  deleteEntryConfirm: "Usunąć ten wpis?",
+  f_weight: "Masa ciała (kg)",
+  f_bodyfat: "Tkanka tłuszczowa (%)",
+  f_waist: "Talia (cm)",
+  f_chest: "Klatka (cm)",
+  f_arm: "Ramię (cm)",
+  f_thigh: "Udo (cm)",
+  f_hips: "Biodra (cm)",
+  s_weight: "Waga",
+  s_bodyfat: "Tłuszcz",
+  s_waist: "Talia",
+  s_chest: "Klatka",
+  s_arm: "Ramię",
+  s_thigh: "Udo",
+  s_hips: "Biodra",
+  goal: "Cel",
+  goals: "Cele",
+  setGoal: "Ustaw cel",
+  goalFor: "{w} kg × {reps}",
+  goalAchieved: "Zrobione {date} 🎉",
+  goalToGo: "Brakuje {d} kg",
+  goalBest: "Najlepiej do tej pory: {w} kg",
+  goalNone: "Jeszcze nie",
+  goalRemove: "Usuń cel",
+  bodyGoal: "Docelowa waga (kg)",
+  bodyGoalLeft: "{d} kg do celu",
+  bodyGoalReached: "Cel osiągnięty 🎉",
+  importExtras: "Do tego {body} pomiarów wagi i {notes} notatek z treningów.",
 };
 
 export const DICTIONARIES: Record<Language, Record<Key, string>> = { en, pl };
@@ -367,10 +485,21 @@ export function useT(): T {
   return translator(useContext(LanguageContext));
 }
 
+/** Polish plural: 1 → one, 2–4 (not 12–14) → few, else many. */
+function plPlural(n: number, one: string, few: string, many: string): string {
+  const last = n % 10;
+  const teen = n % 100 >= 12 && n % 100 <= 14;
+  return n === 1 ? one : last >= 2 && last <= 4 && !teen ? few : many;
+}
+
 /** "1 change" / "3 changes"; Polish: 1 zmiana, 2–4 zmiany, 5+ zmian. */
 export function changesText(n: number, language: Language): string {
   if (language === "en") return `${n} ${n === 1 ? "change" : "changes"}`;
-  const last = n % 10;
-  const teen = n % 100 >= 12 && n % 100 <= 14;
-  return `${n} ${n === 1 ? "zmiana" : last >= 2 && last <= 4 && !teen ? "zmiany" : "zmian"}`;
+  return `${n} ${plPlural(n, "zmiana", "zmiany", "zmian")}`;
+}
+
+/** "1 set" / "3 sets"; Polish: 1 seria, 2–4 serie, 5+ serii. `n` may come pre-formatted. */
+export function setsText(n: number, language: Language, shown: string = String(n)): string {
+  if (language === "en") return `${shown} ${n === 1 ? "set" : "sets"}`;
+  return `${shown} ${plPlural(n, "seria", "serie", "serii")}`;
 }

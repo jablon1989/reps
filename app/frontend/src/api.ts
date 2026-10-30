@@ -3,6 +3,7 @@ import type { T } from "./i18n";
 import { useSession } from "./session";
 import type {
   Category,
+  Docs,
   Exercise,
   ExerciseInput,
   ImportExercise,
@@ -106,6 +107,9 @@ function createApi(getToken: () => string | undefined, refresh: () => Promise<st
     importExercises: (exercises: ImportExercise[]) =>
       call<{ ids: Record<string, string> }>("POST", "/import/exercises", { exercises }).then((r) => r.ids),
     importSets: (sets: (ImportSet & { exercise_id: string })[]) => call<ImportResult>("POST", "/import/sets", { sets }),
+    importExtras: (body_weights: unknown[], notes: unknown[]) =>
+      call<{ body: number; note: number }>("POST", "/import/extras", { body_weights, notes }),
+    docs: () => call<Docs>("GET", "/docs"),
     importUndo: () => call<{ deleted: number }>("DELETE", "/import"),
   };
 }

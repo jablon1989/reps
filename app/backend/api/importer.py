@@ -86,11 +86,35 @@ def guess_category(source: str) -> tuple[str, bool]:
 
 
 # ---------------------------------------------------------------------------
-# Readers: each returns (exercises, sets) as plain dicts
+# Readers: (exercises, sets, …) as plain dicts
 #   exercise: {name, category, kind ("weights" / "cardio" / "time"), favourite}
 #   set:      {exercise (name), date, weight, reps, distance, seconds, comment}
 # ---------------------------------------------------------------------------
-def read_fitnotes(data: bytes) -> tuple[list[dict], list[dict]]:
+def _extras(db) -> tuple[list[dict], list[dict]]:
+    """Body weight entries and workout comments (tables may be missing in old backups)."""
+    weights, notes = [], []
+    try:
+        for r in db.execute("SELECT date, body_weight_metric, body_fat FROM BodyWeight ORDER BY date"):
+            entry = {"date": r[0][:10], "weight": float(r[1] or 0)}
+            if r[2]:
+                entry["bodyfat"] = float(r[2])
+            if entry["weight"] > 0:
+                weights.append(entry)
+    except sqlite3.DatabaseError:
+        pass
+    try:
+        by_day: dict[str, list[str]] = defaultdict(list)
+        for r in db.execute("SELECT date, comment FROM WorkoutComment ORDER BY date, _id"):
+            if (r[1] or "").strip():
+                by_day[r[0][:10]].append(r[1].strip())
+        notes = [{"date": d, "text": "\n".join(texts)[:2000]} for d, texts in by_day.items()]
+    except sqlite3.DatabaseError:
+        pass
+    return weights, notes
+
+
+def read_fitnotes(data: bytes) -> tuple[list[dict], list[dict], list[dict], list[dict]]:
+    """(exercises, sets, body weights, workout notes)"""
     with tempfile.NamedTemporaryFile(suffix=".fitnotes") as f:
         f.write(data)
         f.flush()
@@ -109,6 +133,7 @@ def read_fitnotes(data: bytes) -> tuple[list[dict], list[dict]]:
                 ORDER BY t.date, t._id
                 """
             ).fetchall()
+            extras = _extras(db)
         except sqlite3.DatabaseError as exc:
             raise ImportProblem("This doesn't look like a FitNotes backup") from exc
         finally:
@@ -142,7 +167,7 @@ def read_fitnotes(data: bytes) -> tuple[list[dict], list[dict]]:
                 "comment": r["comment"] or "",
             }
         )
-    return list(exercises.values()), sets
+    return list(exercises.values()), sets, *extras
 
 
 def _column(header: list[str], *words: str) -> int | None:
@@ -255,8 +280,10 @@ def _type(kind: str) -> str:
 
 
 def parse(filename: str, data: bytes) -> dict:
+    body_weights: list[dict] = []
+    notes: list[dict] = []
     if data[:16].startswith(b"SQLite format 3"):
-        exercises, sets = read_fitnotes(data)
+        exercises, sets, body_weights, notes = read_fitnotes(data)
         source = "fitnotes"
     elif filename.lower().endswith((".csv", ".txt")) or b"," in data[:200]:
         exercises, sets = read_csv(data)
@@ -324,6 +351,8 @@ def parse(filename: str, data: bytes) -> dict:
         "days": len(days),
         "first": days[0],
         "last": days[-1],
+        "body_weights": body_weights,
+        "notes": notes,
     }
 
 

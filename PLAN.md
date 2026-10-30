@@ -78,7 +78,7 @@ DynamoDB, Cognito, Terraform, GitHub Actions. The frontend is React + Vite.
 5. **Offline** ✅
    - PWA install
    - local queue and sync
-6. **Routines, body weight and measurements, goals, comments**
+6. **Routines, body weight and measurements, goals, comments** ✅
 7. **Google Drive export**
    - one-time connect (OAuth)
    - weekly scheduled export and "Export now"

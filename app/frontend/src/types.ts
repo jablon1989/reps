@@ -109,10 +109,57 @@ export interface ImportPreview {
   days: number;
   first: string;
   last: string;
+  body_weights: { date: string; weight: number; bodyfat?: number }[];
+  notes: { date: string; text: string }[];
 }
 
 export interface ImportResult {
   saved: number;
   skipped: { date: string; exercise_id: string; why: string }[];
   skipped_count: number;
+}
+
+export interface RoutineItem {
+  exercise_id: string;
+  /** targets, both optional: "3 × 10" */
+  sets?: number;
+  reps?: number;
+}
+
+export interface Routine {
+  id: string;
+  name: string;
+  exercises: RoutineItem[];
+}
+
+export const BODY_FIELDS = ["weight", "bodyfat", "waist", "chest", "arm", "thigh", "hips"] as const;
+export type BodyField = (typeof BODY_FIELDS)[number];
+
+export type BodyEntry = { id: string; date: string } & Partial<Record<BodyField, number>>;
+
+/** Exercise goal: lift `weight` for at least `reps`. Id "body-weight": a body weight target. */
+export interface Goal {
+  id: string;
+  weight: number;
+  reps?: number;
+}
+
+export interface DayNote {
+  id: string;
+  text: string;
+}
+
+/** A routine started on a day (id = the date). */
+export interface DayPlan {
+  id: string;
+  routine_id: string;
+  exercise_ids: string[];
+}
+
+export interface Docs {
+  routine: Routine[];
+  body: BodyEntry[];
+  goal: Goal[];
+  note: DayNote[];
+  plan: DayPlan[];
 }

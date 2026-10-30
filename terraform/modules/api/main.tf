@@ -22,6 +22,10 @@ locals {
     "POST /api/import/parse",
     "POST /api/import/exercises",
     "POST /api/import/sets",
+    "POST /api/import/extras",
+    "GET /api/docs",
+    "PUT /api/docs/{kind}/{docId}",
+    "DELETE /api/docs/{kind}/{docId}",
     "DELETE /api/import",
   ]
 }

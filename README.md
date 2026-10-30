@@ -21,7 +21,9 @@ An invite creates the login, puts it in `reps-only` + `reps`, and Cognito
 e-mails a temporary password (the reps text comes from a trigger in
 aura-the-husky). Someone who already has a login just gets `reps`.
 
-Each person's data is keyed by their login's `sub`.
+Each person's data is keyed by their login's `sub`: exercises (`EX#`, `PREF#`),
+sets (`SET#`), and small documents (`DOC#<kind>#<id>`: routines, body
+measurements, goals, day notes, the routine started on a day).
 
 ## Offline
 
@@ -36,7 +38,7 @@ need a connection.
 ## Layout
 
 ```
-app/backend/api      Python Lambda: the API (handler.py, people.py, workouts.py)
+app/backend/api      Python Lambda: the API (handler.py, people.py, workouts.py, docs.py, importer.py)
                      + catalogue.json: the built-in exercises, EN/PL, by body part
 app/frontend         React + Vite, dark and phone-first, EN/PL (src/i18n.tsx)
 terraform/bootstrap  state bucket + GitHub deploy roles (run once, by hand)

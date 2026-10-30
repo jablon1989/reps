@@ -2,18 +2,30 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { Calendar } from "../components/Calendar";
 import { Bars, Columns, Tile } from "../components/charts";
+import { useDocs } from "../docs";
 import { addDays, formatDay, todayIso } from "../dates";
 import { useExercises } from "../exercises";
 import { exerciseName, formatCount, formatNumber, formatSet, formatTonnage } from "../format";
 import { useHistory } from "../history";
-import { useLanguage, useT } from "../i18n";
-import { recentPrs, volumeByPart, weekStart, weekStreaks, workoutDays, workoutsPerWeek, tonnage } from "../stats";
+import { useLanguage, useT, setsText } from "../i18n";
+import {
+  goalProgress,
+  recentPrs,
+  volumeByPart,
+  weekStart,
+  weekStreaks,
+  workoutDays,
+  workoutsPerWeek,
+  tonnage,
+} from "../stats";
 
 export function StatsPage() {
   const t = useT();
   const lang = useLanguage();
   const { sets, error } = useHistory();
   const { byId, categories } = useExercises();
+  const { docs } = useDocs();
+  const history = useHistory();
   const [period, setPeriod] = useState<"week" | "month">("week");
   const today = todayIso();
 
@@ -56,7 +68,7 @@ export function StatsPage() {
         key: c.id,
         label: lang === "pl" ? c.pl : c.en,
         value: v!.sets,
-        text: `${t("setsN", { n: String(v!.sets) })}${v!.tonnage ? ` · ${formatTonnage(v!.tonnage, lang)}` : ""}`,
+        text: `${setsText(v!.sets, lang)}${v!.tonnage ? ` · ${formatTonnage(v!.tonnage, lang)}` : ""}`,
         className: `cat-${c.id}`,
       }));
   }, [sets, byId, categories, period, today, lang, t]);
@@ -117,6 +129,37 @@ export function StatsPage() {
                 );
               })}
             </ul>
+          )}
+
+          {docs.goal.some((g) => g.id !== "body-weight") && (
+            <>
+              <h2>🎯 {t("goals")}</h2>
+              <ul className="card list goals">
+                {docs.goal
+                  .filter((g) => g.id !== "body-weight")
+                  .map((g) => {
+                    const ex = byId.get(g.id);
+                    const p = goalProgress(history.forExercise(g.id), g.weight, g.reps ?? 1);
+                    const share = Math.min(1, (p.best ?? 0) / g.weight);
+                    return (
+                      <li key={g.id}>
+                        <Link to={`/stats/${g.id}`} className={`goal-row cat-${ex?.category}`}>
+                          <span className="section-head">
+                            <strong>{exerciseName(ex, lang)}</strong>
+                            <span className="muted small">
+                              {t("goalFor", { w: formatNumber(g.weight, lang), reps: String(g.reps ?? 1) })}
+                              {p.achieved ? " ✓" : ` · ${Math.round(share * 100)}%`}
+                            </span>
+                          </span>
+                          <span className="progress">
+                            <span style={{ width: `${share * 100}%` }} />
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+              </ul>
+            </>
           )}
 
           <div className="section-head">

@@ -24,6 +24,7 @@ from typing import Any
 
 import boto3
 
+import docs
 import importer
 import people
 import workouts
@@ -239,6 +240,26 @@ def delete_set(event: dict, path: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Routines, body, goals, notes, plans (docs.py)
+# ---------------------------------------------------------------------------
+def get_docs(event: dict, _: dict) -> dict:
+    user = current_user(event)
+    return response(200, docs.list_all(table, user.pk))
+
+
+def put_doc(event: dict, path: dict) -> dict:
+    user = current_user(event)
+    doc = docs.put(table, user.pk, path.get("kind", ""), path.get("docId", ""), parse_body(event), now_iso())
+    return response(200, doc)
+
+
+def delete_doc(event: dict, path: dict) -> dict:
+    user = current_user(event)
+    docs.delete(table, user.pk, path.get("kind", ""), path.get("docId", ""))
+    return response(204)
+
+
+# ---------------------------------------------------------------------------
 # Import from FitNotes: parse (preview) -> exercises -> sets (in chunks)
 # ---------------------------------------------------------------------------
 IMPORT_CHUNK = 1000
@@ -334,6 +355,16 @@ def import_sets(event: dict, _: dict) -> dict:
     return response(200, {"saved": saved, "skipped": skipped[:50], "skipped_count": len(skipped)})
 
 
+def import_extras(event: dict, _: dict) -> dict:
+    """Body weight and workout comments from a FitNotes backup."""
+    user = current_user(event)
+    body = parse_body(event)
+    weights, notes = body.get("body_weights") or [], body.get("notes") or []
+    if not isinstance(weights, list) or not isinstance(notes, list):
+        raise ApiError(400, "body_weights and notes must be lists")
+    return response(200, docs.import_extras(table, user.pk, weights, notes, now_iso()))
+
+
 def import_undo(event: dict, _: dict) -> dict:
     """Remove every imported set (sets you logged yourself stay)."""
     user = current_user(event)
@@ -361,6 +392,10 @@ ROUTES: dict[str, Callable[[dict, dict], dict]] = {
     "POST /api/import/parse": import_parse,
     "POST /api/import/exercises": import_exercises,
     "POST /api/import/sets": import_sets,
+    "POST /api/import/extras": import_extras,
+    "GET /api/docs": get_docs,
+    "PUT /api/docs/{kind}/{docId}": put_doc,
+    "DELETE /api/docs/{kind}/{docId}": delete_doc,
     "DELETE /api/import": import_undo,
 }
 

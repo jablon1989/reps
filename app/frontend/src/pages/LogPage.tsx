@@ -8,7 +8,8 @@ import { useLanguage, useT } from "../i18n";
 import { isLift, prSetIds } from "../stats";
 import { useTimer } from "../timer";
 import type { Exercise, Session, WorkSet } from "../types";
-import { DateBar, dayQuery, useDay } from "./WorkoutPage";
+import { useDocs } from "../docs";
+import { DateBar, dayQuery, useDay, useTarget } from "./WorkoutPage";
 
 function newId(): string {
   return crypto.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
@@ -38,6 +39,7 @@ function Logger({ ex }: { ex: Exercise }) {
   const [reps, setReps] = useState("");
   const [distance, setDistance] = useState("");
   const [time, setTime] = useState("");
+  const [note, setNote] = useState("");
   const [error, setError] = useState<string>();
   const cardio = ex.type === "cardio";
   const name = exerciseName(ex, lang);
@@ -52,12 +54,25 @@ function Logger({ ex }: { ex: Exercise }) {
     return { date, sets: before.filter((s) => s.date === date) };
   }, [all, day]);
   const prs = useMemo(() => (isLift(ex) ? prSetIds(all) : new Set<string>()), [all, ex]);
+  const target = useTarget(day, ex.id);
+  const { get } = useDocs();
+  const { byId } = useExercises();
+  const plan = get("plan", day);
+  // The routine's next exercise not done yet (after this one, else from the top).
+  const next = useMemo(() => {
+    if (!plan) return undefined;
+    const doneIds = new Set((history.sets ?? []).filter((s) => s.date === day).map((s) => s.exercise_id));
+    const ids = plan.exercise_ids;
+    const from = Math.max(0, ids.indexOf(ex.id) + 1);
+    return [...ids.slice(from), ...ids.slice(0, from)].find((id) => id !== ex.id && !doneIds.has(id));
+  }, [plan, history.sets, day, ex.id]);
 
   function fill(s: WorkSet | undefined) {
     setWeight(s?.weight !== undefined ? formatNumber(s.weight, lang) : ex.type === "weight_reps" ? "" : "0");
     setReps(s?.reps !== undefined ? String(s.reps) : "");
     setDistance(s?.distance !== undefined ? formatNumber(s.distance, lang) : "");
     setTime(s?.seconds ? formatDuration(s.seconds) : "");
+    setNote("");
   }
 
   // Start from today's last set, else from last time's first set (once the sets are there).
@@ -102,6 +117,7 @@ function Logger({ ex }: { ex: Exercise }) {
       set.weight = w;
       set.reps = r;
     }
+    if (note.trim()) set.comment = note.trim().slice(0, 500);
     return set;
   }
 
@@ -113,6 +129,7 @@ function Logger({ ex }: { ex: Exercise }) {
     history.saveSet(set);
     if (!selected && ex.rest > 0) timer.start(ex.rest, name);
     setSelected(undefined);
+    setNote("");
   }
 
   function remove() {
@@ -129,6 +146,7 @@ function Logger({ ex }: { ex: Exercise }) {
     }
     setSelected(s.id);
     fill(s);
+    setNote(s.comment ?? "");
   }
 
   return (
@@ -151,6 +169,7 @@ function Logger({ ex }: { ex: Exercise }) {
         </button>
       </div>
       {day !== todayIso() && <DateBar day={day} onChange={setDay} />}
+      {target && <p className="pill target">🎯 {target}</p>}
 
       <div className="card entry">
         {cardio ? (
@@ -176,6 +195,13 @@ function Logger({ ex }: { ex: Exercise }) {
             />
           </>
         )}
+        <input
+          className="note-input single"
+          placeholder={t("setNote")}
+          value={note}
+          maxLength={500}
+          onChange={(e) => setNote(e.target.value)}
+        />
         {error && <p className="error small">{error}</p>}
         <div className="entry-actions">
           <button className="btn primary big" onClick={save}>
@@ -203,11 +229,18 @@ function Logger({ ex }: { ex: Exercise }) {
                   <span className="set-no">{i + 1}</span>
                   {formatSet(s, ex, lang)}
                   {prs.has(s.id) && <span className="pr-badge">🏆 {t("pr")}</span>}
+                  {s.comment && <span className="muted small set-comment">💬 {s.comment}</span>}
                 </button>
               </li>
             ))}
           </ol>
         </>
+      )}
+
+      {next && sets.length > 0 && (
+        <button className="btn big next-btn" onClick={() => navigate(`/log/${next}${dayQuery(day)}`)}>
+          {t("nextExercise", { name: exerciseName(byId.get(next), lang) })} →
+        </button>
       )}
 
       <div className="section-head">

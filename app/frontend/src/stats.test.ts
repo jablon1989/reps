@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   e1rm,
+  goalProgress,
   prSetIds,
   recentPrs,
   repMaxes,
@@ -103,5 +104,16 @@ describe("weeks", () => {
       { week: "2026-10-19", workouts: 2 },
       { week: "2026-10-26", workouts: 1 },
     ]);
+  });
+});
+
+describe("goals", () => {
+  it("tracks the best weight for the goal's reps and when it was reached", () => {
+    const sets = [set("2026-01-01", 90, 5), set("2026-02-01", 100, 1), set("2026-03-01", 95, 3)];
+    expect(goalProgress(sets, 100, 3)).toEqual({ best: 95, achieved: undefined });
+    const done = goalProgress(sets, 100, 1);
+    expect(done.best).toBe(100);
+    expect(done.achieved?.date).toBe("2026-02-01");
+    expect(goalProgress([], 100)).toEqual({ best: undefined, achieved: undefined });
   });
 });

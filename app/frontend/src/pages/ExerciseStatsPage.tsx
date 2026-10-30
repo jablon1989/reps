@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { LineChart, Tile } from "../components/charts";
+import { GoalCard } from "../components/GoalCard";
 import { addDays, formatDay, todayIso } from "../dates";
 import { useExercises } from "../exercises";
 import {
@@ -13,7 +14,7 @@ import {
   formatTonnage,
 } from "../format";
 import { useHistory } from "../history";
-import { useLanguage, useT } from "../i18n";
+import { useLanguage, useT, setsText } from "../i18n";
 import { isLift, prSetIds, repMaxes, sessions, type SessionStats } from "../stats";
 import { dayQuery } from "./WorkoutPage";
 
@@ -154,9 +155,16 @@ export function ExerciseStatsPage() {
             <Tile
               label={t("sessionsN")}
               value={formatCount(data.days.length, lang)}
-              note={`${formatCount(sets.length, lang)} ${t("sets")}`}
+              note={setsText(sets.length, lang, formatCount(sets.length, lang))}
             />
           </div>
+
+          {lift && (
+            <>
+              <h2>{t("goal")}</h2>
+              <GoalCard exerciseId={ex.id} sets={sets} />
+            </>
+          )}
 
           <h2>{t("graph")}</h2>
           <div className="card">

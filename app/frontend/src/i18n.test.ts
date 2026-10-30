@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DICTIONARIES, changesText, translator } from "./i18n";
+import { DICTIONARIES, changesText, setsText, translator } from "./i18n";
 
 describe("i18n", () => {
   it("has every text in English and Polish", () => {
@@ -26,5 +26,11 @@ describe("i18n", () => {
       "22 zmiany",
       "25 zmian",
     ]);
+  });
+
+  it("counts sets in both languages", () => {
+    expect([1, 2, 7].map((n) => setsText(n, "en"))).toEqual(["1 set", "2 sets", "7 sets"]);
+    expect([1, 3, 5, 22].map((n) => setsText(n, "pl"))).toEqual(["1 seria", "3 serie", "5 serii", "22 serie"]);
+    expect(setsText(7400, "en", "7,400")).toBe("7,400 sets");
   });
 });

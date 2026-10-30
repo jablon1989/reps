@@ -4,11 +4,14 @@ import { LanguageProvider, browserLanguage, useT } from "./i18n";
 import { MeProvider, type MeStatus } from "./me";
 import { SyncBar } from "./components/SyncBar";
 import { TimerBar } from "./components/TimerBar";
+import { DocsProvider } from "./docs";
 import { ExercisesProvider } from "./exercises";
 import { HistoryProvider } from "./history";
 import { ExerciseStatsPage } from "./pages/ExerciseStatsPage";
 import { StatsPage } from "./pages/StatsPage";
+import { BodyPage } from "./pages/BodyPage";
 import { ExercisesPage } from "./pages/ExercisesPage";
+import { RoutinesPage } from "./pages/RoutinesPage";
 import { ImportPage } from "./pages/ImportPage";
 import { LogPage } from "./pages/LogPage";
 import { LoginPage } from "./pages/LoginPage";
@@ -32,9 +35,11 @@ export function App() {
       <MeProvider fallback={(s) => <NotReady status={s} />}>
         <ExercisesProvider>
           <HistoryProvider>
-            <TimerProvider>
-              <Shell />
-            </TimerProvider>
+            <DocsProvider>
+              <TimerProvider>
+                <Shell />
+              </TimerProvider>
+            </DocsProvider>
           </HistoryProvider>
         </ExercisesProvider>
       </MeProvider>
@@ -75,6 +80,7 @@ const TABS = [
   { to: "/", icon: "🏋️", label: "tabWorkout" },
   { to: "/exercises", icon: "📋", label: "tabExercises" },
   { to: "/stats", icon: "📈", label: "tabStats" },
+  { to: "/body", icon: "⚖️", label: "tabBody" },
 ] as const;
 
 function Shell() {
@@ -91,6 +97,8 @@ function Shell() {
           <Route path="/exercises" element={<ExercisesPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/stats/:exerciseId" element={<ExerciseStatsPage />} />
+          <Route path="/routines" element={<RoutinesPage />} />
+          <Route path="/body" element={<BodyPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/import" element={<ImportPage />} />
           <Route path="*" element={<div className="center-screen muted">{t("pageNotFound")}</div>} />
@@ -105,7 +113,7 @@ function Shell() {
             end={tab.to !== "/stats"}
             // Picking and logging an exercise belong to the Workout tab.
             className={({ isActive }) =>
-              isActive || (tab.to === "/" && /^\/(pick|log)\b/.test(pathname)) ? "active" : ""
+              isActive || (tab.to === "/" && /^\/(pick|log|routines)\b/.test(pathname)) ? "active" : ""
             }
           >
             <span aria-hidden>{tab.icon}</span>

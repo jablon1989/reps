@@ -207,3 +207,23 @@ export function recentPrs(sets: WorkSet[], byId: Map<string, Exercise>, since: s
   }
   return out.sort((a, b) => byTime(b.set, a.set));
 }
+
+export interface GoalProgress {
+  /** heaviest weight lifted for at least the goal's reps */
+  best?: number;
+  /** the first set that reached the goal */
+  achieved?: WorkSet;
+}
+
+/** How close you are to lifting `weight` for at least `reps`. */
+export function goalProgress(sets: WorkSet[], weight: number, reps = 1): GoalProgress {
+  let best: number | undefined;
+  let achieved: WorkSet | undefined;
+  for (const s of [...sets].sort(byTime)) {
+    if ((s.reps ?? 0) < reps) continue;
+    const w = s.weight ?? 0;
+    if (best === undefined || w > best) best = w;
+    if (!achieved && w >= weight) achieved = s;
+  }
+  return { best, achieved };
+}
